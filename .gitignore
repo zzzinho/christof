@@ -11,3 +11,6 @@ xcuserdata/
 
 # hunsu (대화·되돌리기 스냅샷)
 .hunsu/
+
+# 편집기 설정
+.vscode/
