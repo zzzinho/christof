@@ -18,11 +18,11 @@ struct WindowTimelineProvider: AppIntentTimelineProvider {
 
     // 위젯 갤러리·편집 화면은 바로 떠야 하므로 네트워크를 기다리지 않는다.
     func snapshot(for configuration: SelectRegionIntent, in context: Context) async -> WindowEntry {
-        entry(at: .now, region: configuration.selectedRegion(store: store), forecast: nil, settings: store.load())
+        entry(at: .now, region: configuration.chosenRegion ?? store.loadLocatedRegion(), forecast: nil, settings: store.load())
     }
 
     func timeline(for configuration: SelectRegionIntent, in context: Context) async -> Timeline<WindowEntry> {
-        let region = configuration.selectedRegion(store: store)
+        let region = await region(for: configuration)
         let settings = store.load()
         let now = Date.now
         // 예보 실패(오프라인 등)는 날씨 없는 장면으로 그리고, 30분 뒤 다시 시도한다(하루 48회, 리로드 예산 40~70회 안).
@@ -40,6 +40,15 @@ struct WindowTimelineProvider: AppIntentTimelineProvider {
         }
         let policy: TimelineReloadPolicy = .after(now.addingTimeInterval((forecast == nil ? 30 : 60) * 60))
         return Timeline(entries: entries, policy: policy)
+    }
+
+    // "자동"이면 위젯이 위치를 직접 봐서, 앱을 열지 않아도 도시를 옮기면 바뀐다. 위치를 못 보면 앱이나 위젯이 마지막에 고른 지역을 쓴다.
+    private func region(for configuration: SelectRegionIntent) async -> Region {
+        if let chosen = configuration.chosenRegion { return chosen }
+        guard let location = await WidgetLocation.current() else { return store.loadLocatedRegion() }
+        let region = await RegionGeocoder().region(at: location)
+        store.saveLocatedRegion(region)
+        return region
     }
 
     private func entry(at date: Date, region: Region, forecast: WeatherForecast?, settings: SceneSettings) -> WindowEntry {

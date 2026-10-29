@@ -9,10 +9,9 @@ struct SelectRegionIntent: WidgetConfigurationIntent {
     @Parameter(title: "Region")
     var region: RegionEntity?
 
-    // "자동"과 목록에서 빠진 지역(예전 버전의 대구 등)은 앱이 위치로 고른 지역으로 그린다.
-    // ponytail: 위젯은 위치를 직접 보지 않아, 다른 도시로 옮겨도 앱을 열어야 바뀐다. 문제가 되면 NSWidgetWantsLocation 으로 위젯이 직접 본다.
-    func selectedRegion(store: SceneSettingsStore) -> Region {
-        region.flatMap { CountryRegistry.standard.region(id: $0.id) } ?? store.loadLocatedRegion()
+    /// 고른 지역. "자동"과 목록에서 빠진 지역(예전 버전의 대구 등)은 nil 이고, 위치로 고른다.
+    var chosenRegion: Region? {
+        region.flatMap { CountryRegistry.standard.region(id: $0.id) }
     }
 }
 
