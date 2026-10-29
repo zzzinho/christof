@@ -51,6 +51,14 @@ private func seoul(latitude: Double = 37.5665) -> Region {
     }
 }
 
+@Test func nullValuesSkipOnlyThatTime() throws {
+    let text = String(decoding: seoulFixture, as: UTF8.self)
+        .replacingOccurrences(of: "[85,100,88]", with: "[85,null,88]")
+        .replacingOccurrences(of: "\"cloud_cover\":97", with: "\"cloud_cover\":null")
+    let samples = try OpenMeteoResponse.forecast(from: Data(text.utf8)).samples
+    #expect(samples.map(\.time.timeIntervalSince1970) == [1792296000, 1792303200])
+}
+
 private let light = 1.0 / 3, moderate = 2.0 / 3, heavy = 1.0
 
 @Test(arguments: [
