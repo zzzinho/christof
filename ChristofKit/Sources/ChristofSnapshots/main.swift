@@ -69,7 +69,7 @@ let daegu = Region(id: "test.daegu", name: LocalizedName(en: "Daegu", ko: "ëŒ€êµ
 let scenarios: [Scenario] = [
     Scenario("01-summer-clear-day", seoul, localTime(seoul, 7, 15, 13), (.clear, 0, 0.1, 31)),
     Scenario("02-spring-forsythia-day", daegu, localTime(daegu, 4, 5, 11), (.partlyCloudy, 0, 0.3, 17)),
-    Scenario("03-sunrise", seoul, sunTime(seoul, 10, 18, \.sunrise), (.clear, 0, 0.2, 9), occasion: "sky.sunrise"),
+    Scenario("03-sunrise", seoul, sunTime(seoul, 10, 15, \.sunrise), (.clear, 0, 0.2, 9), occasion: "sky.sunrise"),
     Scenario("04-sunset", busan, sunTime(busan, 6, 21, \.sunset), (.partlyCloudy, 0, 0.35, 24), occasion: "sky.sunset"),
     Scenario("05-crescent-night", seoul, localTime(seoul, 3, 22, 20), (.clear, 0, 0, 5)),
     Scenario("06-chuseok-full-moon", seoul, localTime(seoul, 9, 25, 21), (.clear, 0, 0.05, 19), occasion: "KR.chuseok"),
@@ -81,7 +81,7 @@ let scenarios: [Scenario] = [
     Scenario("12-halloween-night", seoul, localTime(seoul, 10, 31, 20), (.partlyCloudy, 0, 0.4, 12), occasion: "KR.halloween"),
     Scenario("13-seollal-morning", seoul, localTime(seoul, 2, 17, 8), (.clear, 0, 0.1, -3), occasion: "KR.seollal"),
     Scenario("14-buddha-birthday-sunset", seoul, sunTime(seoul, 5, 24, \.sunset), (.clear, 0, 0.1, 20), occasion: "KR.buddhasBirthday"),
-    Scenario("15-autumn-foliage-day", seoul, localTime(seoul, 10, 25, 14), (.clear, 0, 0.15, 16)),
+    Scenario("15-autumn-foliage-day", seoul, localTime(seoul, 11, 2, 14), (.clear, 0, 0.15, 16)),
     Scenario("16-offline-night", busan, localTime(busan, 1, 10, 23), nil),
     Scenario("17-jeongwol-daeboreum-night", seoul, localTime(seoul, 3, 3, 21), (.clear, 0, 0.05, 2), occasion: "KR.jeongwolDaeboreum"),
     Scenario("18-new-year-sunrise", busan, sunTime(busan, 1, 1, \.sunrise), (.clear, 0, 0.1, -6), occasion: "KR.newYearsDay"),

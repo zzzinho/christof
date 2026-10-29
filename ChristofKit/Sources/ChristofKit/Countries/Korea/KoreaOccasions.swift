@@ -7,7 +7,7 @@ public enum KoreaOccasions {
 
     public static let all: [Occasion] = [
         Occasion(id: "KR.seollal", name: LocalizedName(en: "Seollal", ko: "설날"), rule: LunarDateRule(calendar: .dangi, month: 1, day: 1, daysBefore: lead, daysAfter: 1), looks: OccasionLooks(
-            window: [Kite()], person: [Daenggi()], outfit: .seollal, cat: [CatItem.pouch], room: [DeskItem.tteokguk], clock: [Bokjumeoni()],
+            window: [Kite()], person: [Daenggi()], outfit: .seollal, cat: [CatItem.yut], room: [DeskItem.tteokguk], clock: [Bokjumeoni()],
             moment: OccasionMoment(hours: 7...10, cat: .eat))),  // 떡국 같이 먹기
         Occasion(id: "KR.jeongwolDaeboreum", name: LocalizedName(en: "Jeongwol Daeboreum", ko: "정월대보름"), rule: LunarDateRule(calendar: .dangi, month: 1, day: 15, daysBefore: lead), looks: OccasionLooks(
             window: [MoonHalo(), Daljip()], person: [PersonSprite.moonPin], outfit: .daeboreum, cat: [CatItem.walnut], room: [DeskItem.bureom],

@@ -5,7 +5,7 @@ enum RoomPainter {
         if let sill = looks.first(where: { $0.spot == .sill }) {
             sill.draw(&g, L, s)
         } else {
-            g.ink { $0.sprite(L.x1 - 6, L.sill, Sprites.plant, colors) }
+            g.ink { $0.sprite(L.sillX(s.catState) + 1, L.sill, Sprites.plant, colors) }
         }
         if L.H > 80 { g.ink { drawShelf(&$0, L.x1 + 6, L.W - 6, jsRound(Double(L.H) * 0.38)) } }
 

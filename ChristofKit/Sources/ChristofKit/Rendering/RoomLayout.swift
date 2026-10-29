@@ -41,6 +41,14 @@ struct RoomLayout {
 
     /// 고양이 상태마다 자리. front 면 사람 앞에 그린다.
     /// item 은 곁에 두는 이벤트 물건 자리 [가운데, 바닥]이다. 어깨 위 고양이는 곁에 바닥이 없어 창턱 고양이 자리에 둔다.
+    /// 창턱 화분 자리. 책상에 앉은 고양이가 창 오른쪽 끝 앞을 가리면(small·large 의 곁·쓰다듬기, medium·large 의 밥 먹기)
+    /// 고양이와 책상 위 곁 물건보다 왼쪽으로 옮긴다.
+    func sillX(_ state: DotScene.CatState) -> Int {
+        let spot = catSpot(state), width = spot.pose.rows[0].count
+        guard spot.front, spot.bottom > sill, spot.left <= x1 - 4, spot.left + width >= x1 - 10 else { return x1 - 7 }
+        return min(spot.left, spot.item.y > sill ? spot.item.x - 3 : spot.left) - 4
+    }
+
     func catSpot(_ state: DotScene.CatState) -> CatSpot {
         switch state {
         case .window: CatSpot(pose: .back, x: cat.x, bottom: sill, item: (cat.x + 9, sill))

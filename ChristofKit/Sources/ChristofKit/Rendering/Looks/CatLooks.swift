@@ -12,7 +12,8 @@ struct CatItem: CatLook {
         g.sprite(spot.item.x, spot.item.y, rows, colors)
     }
 
-    static let pouch = CatItem(rows: Sprites.bokjumeoni, colors: Sprites.bokjumeoniColors)
+    /// 설날: 윷가락 두 가락을 엇갈려 둔다. 네 가락을 나란히 세우면 울타리나 바코드처럼 읽혔다. 평평한 면(밝은 색)에 표시를 찍는다.
+    static let yut = CatItem(rows: ["Ak...BB", ".AA.BB.", "..ABB..", "..BAA..", ".BB.kA.", "BB...AA"], colors: ["A": "mug", "B": "autumn-3", "k": "wood"])
     static let walnut = CatItem(rows: ["nNn", "NnN"], colors: ["n": "wood-light", "N": "branch"])
     /// 추석 선물: 조각보로 싸고 위를 매듭지은 보자기
     static let bojagi = CatItem(rows: ["k.k", ".k.", "ABC", "CAB"], colors: ["k": "hanbok", "A": "hanbok", "B": "hanbok-jade", "C": "pouch-gold"])

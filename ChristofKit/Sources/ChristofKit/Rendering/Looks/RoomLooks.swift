@@ -45,7 +45,7 @@ struct SillItem: RoomLook {
 
     func draw(_ g: inout DotGrid, _ L: RoomLayout, _ s: DotScene) {
         let colors = s.lightOn ? colors.merging(lit) { $1 } : colors
-        g.ink { $0.sprite(L.x1 - 7 + dx, L.sill, rows, colors) }
+        g.ink { $0.sprite(L.sillX(s.catState) + dx, L.sill, rows, colors) }
     }
 
     static let lotusBowl = SillItem(rows: [".P.P.", "PpPpP", "lllll", ".BBB."], colors: ["P": "spring-1", "p": "spring-2", "l": "plant", "B": "pouch-knot"])
