@@ -119,11 +119,11 @@
 <script>
 const DOT = 3;
 
-// 장면. region 은 해·달 값을 계산한 지역이고, 페이지는 자기 지역(기본, 부산, 서울)으로 바꿔 그린다. sun: [고도, 방위각], moon: [위상, 고도, 방위각], weather: [종류, 강도, 구름양, 기온] 또는 null(오프라인)
+// 장면. region 은 해·달 값을 계산한 지역이고, 페이지는 자기 지역(기본, 부산, 서울)으로 바꿔 그린다. 이벤트는 14일 앞서 시작하므로(할로윈 10/17~31) 이벤트 없는 장면은 그 기간을 피한다. sun: [고도, 방위각], moon: [위상, 고도, 방위각], weather: [종류, 강도, 구름양, 기온] 또는 null(오프라인)
 const SCENES = [
   { title: '여름 낮 · 맑음', region: '서울', date: '7월 15일', time: '오후 1:00', hour: 13, season: 'summer', sun: [73, 198], moon: [0.03, 73, 160], weather: ['clear', 0, 0.1, 31], occasions: [] },
   { title: '봄 낮 · 개나리', region: '대구', date: '4월 5일', time: '오전 11:00', hour: 11, season: 'spring', sun: [54, 141], moon: [0.59, -42, 271], weather: ['partlyCloudy', 0, 0.3, 17], occasions: [] },
-  { title: '일출', region: '서울', date: '10월 18일', time: '오전 6:42', hour: 6, season: 'autumn', sun: [-1, 101], moon: [0.23, -75, 42], weather: ['clear', 0, 0.2, 9], occasions: ['sky.sunrise'] },
+  { title: '일출', region: '서울', date: '10월 15일', time: '오전 6:39', hour: 6, season: 'autumn', sun: [-1, 100], moon: [0.14, -49, 89], weather: ['clear', 0, 0.2, 9], occasions: ['sky.sunrise'] },
   { title: '일몰', region: '부산', date: '6월 21일', time: '오후 7:41', hour: 19, season: 'summer', sun: [-1, 300], moon: [0.23, 48, 219], weather: ['partlyCloudy', 0, 0.35, 24], occasions: ['sky.sunset'] },
   { title: '초승달 밤', region: '서울', date: '3월 22일', time: '오후 8:00', hour: 20, season: 'spring', sun: [-15, 283], moon: [0.13, 29, 276], weather: ['clear', 0, 0, 5], occasions: [] },
   { title: '추석 보름달', region: '서울', date: '9월 25일', time: '오후 9:00', hour: 21, season: 'autumn', sun: [-31, 296], moon: [0.46, 37, 132], weather: ['clear', 0, 0.05, 19], occasions: ['KR.chuseok', 'sky.fullMoon'] },
@@ -135,7 +135,7 @@ const SCENES = [
   { title: '할로윈 밤', region: '서울', date: '10월 31일', time: '오후 8:00', hour: 20, season: 'autumn', sun: [-29, 274], moon: [0.7, -17, 37], weather: ['partlyCloudy', 0, 0.4, 12], occasions: ['KR.halloween'] },
   { title: '설날 아침', region: '서울', date: '2월 17일', time: '오전 8:00', hour: 8, season: 'winter', sun: [7, 111], moon: [0.98, 8, 118], weather: ['clear', 0, 0.1, -3], occasions: ['KR.seollal'] },
   { title: '부처님오신날 해 질 녘', region: '서울', date: '5월 24일', time: '오후 7:41', hour: 19, season: 'spring', sun: [-1, 297], moon: [0.28, 57, 186], weather: ['clear', 0, 0.1, 20], occasions: ['KR.buddhasBirthday', 'sky.sunset'] },
-  { title: '가을 단풍 낮', region: '전주', date: '10월 25일', time: '오후 2:00', hour: 14, season: 'autumn', sun: [36, 212], moon: [0.46, -30, 47], weather: ['clear', 0, 0.15, 16], occasions: [] },
+  { title: '가을 단풍 낮', region: '서울', date: '11월 2일', time: '오후 2:00', hour: 14, season: 'autumn', sun: [32, 210], moon: [0.76, -2, 294], weather: ['clear', 0, 0.15, 16], occasions: [] },
   { title: '날씨 없음 (오프라인) 밤', region: '제주', date: '1월 10일', time: '오후 11:00', hour: 23, season: 'winter', sun: [-65, 291], moon: [0.75, -23, 88], weather: null, occasions: [] },
   { title: '정월대보름 밤', region: '서울', date: '3월 3일', time: '오후 9:00', hour: 21, season: 'spring', sun: [-31, 287], moon: [0.5, 30, 107], weather: ['clear', 0, 0.05, 2], occasions: ['KR.jeongwolDaeboreum', 'sky.fullMoon'] },
   { title: '새해 첫 일출', region: '강릉', date: '1월 1일', time: '오전 7:39', hour: 7, season: 'winter', sun: [-1, 119], moon: [0.4, -19, 328], weather: ['clear', 0, 0.1, -6], occasions: ['KR.newYearsDay', 'sky.sunrise'] },
@@ -146,7 +146,7 @@ const SCENES = [
 // looks: 구성 요소마다 그 이벤트에 쓸 모양 이름. 이름은 각 구성 요소의 *_LOOKS 키다.
 // moment: 그 이벤트다운 사람·고양이 순간. hours(양 끝 포함) 동안 시각으로 고른 상호작용을 덮는다.
 const OCCASIONS = {
-  'KR.seollal': { name: '설날', looks: { window: 'kite', person: 'daenggi', cat: 'pouch', room: 'tteokguk', clock: 'bokjumeoni' }, moment: { hours: [7, 10], cat: 'eat', name: '떡국 같이 먹기' } },
+  'KR.seollal': { name: '설날', looks: { window: 'kite', person: 'daenggi', cat: 'yut', room: 'tteokguk', clock: 'bokjumeoni' }, moment: { hours: [7, 10], cat: 'eat', name: '떡국 같이 먹기' } },
   'KR.jeongwolDaeboreum': { name: '정월대보름', looks: { window: ['moonHalo', 'daljip'], person: 'moonPin', cat: 'walnut', room: 'bureom', clock: 'moonFace' }, moment: { hours: [7, 9], cat: 'eat', name: '부럼 깨기' } },
   'KR.buddhasBirthday': { name: '부처님오신날', looks: { window: 'lanterns', person: 'lotusPin', cat: 'lotus', room: 'lotusBowl', clock: 'lantern' }, moment: { hours: [19, 22], cat: 'beside', name: '연등 같이 보기' } },
   'KR.chuseok': { name: '추석', looks: { window: ['moonHalo', 'pineBranch'], person: 'ribbonPin', cat: 'bojagi', room: 'songpyeon', clock: 'moonFace' }, moment: { hours: [19, 23], cat: 'beside', name: '보름달 같이 보기' } },
@@ -578,6 +578,8 @@ const SPRITES = {
   catBeanie: ['..w..', '.BBB.', 'BBBBB'],
   // 잎받침 위에 핀 연꽃
   catLotus: ['..P..', '.PPP.', 'PpPpP', '.ggg.'],
+  // 윷가락 두 가락을 엇갈려 둔다. 네 가락을 나란히 세우면 울타리나 바코드처럼 읽혔다. 평평한 면(밝은 색)에 표시를 찍는다.
+  catYut: ['Ak...BB', '.AA.BB.', '..ABB..', '..BAA..', '.BB.kA.', 'BB...AA'],
   // 끝이 꺾인 고깔과 금색 별, 귀를 덮는 챙
   catWizardHat: ['....WW.', '...WW..', '..WWW..', '..WgW..', 'WWWWWWW'],
   pumpkin: [
@@ -1154,7 +1156,7 @@ function catAnchor(spot) {
 }
 
 const CAT_LOOKS = {
-  pouch: (g, { item: [x, y] }) => g.sprite(x, y, SPRITES.bokjumeoni, BOKJUMEONI_COLORS),
+  yut: (g, { item: [x, y] }) => g.sprite(x, y, SPRITES.catYut, { A: 'mug', B: 'autumn-3', k: 'wood' }),
   beanie(g, spot) {
     const { head: [x, y] } = catAnchor(spot);
     g.sprite(x, y + 1, SPRITES.catBeanie, { w: 'santa-trim', B: 'beanie' });
@@ -1240,8 +1242,12 @@ function drawRoom(g, L, s) {
   const looks = s.looks.room.map(name => ROOM_LOOKS[name]);
   const colors = s.lightOn ? SPRITE_COLORS : UNLIT_COLORS;
   const sillLook = looks.find(look => look.sill);
-  if (sillLook) ink(g, t => sillLook.sill(t, L.x1 - 7, L.sill, s));
-  else ink(g, t => t.sprite(L.x1 - 6, L.sill, SPRITES.plant, colors));
+  // 책상에 앉은 고양이가 창 오른쪽 끝 앞을 가리면(small·large 의 곁·쓰다듬기, medium·large 의 밥 먹기) 화분을 고양이와 책상 위 곁 물건보다 왼쪽으로 옮긴다.
+  const spot = L.cats[s.catState], { left, width } = catAnchor(spot);
+  const hidden = spot.front && spot.bottom > L.sill && left <= L.x1 - 4 && left + width >= L.x1 - 10;
+  const potX = hidden ? Math.min(left, spot.item[1] > L.sill ? spot.item[0] - 3 : left) - 4 : L.x1 - 7;
+  if (sillLook) ink(g, t => sillLook.sill(t, potX, L.sill, s));
+  else ink(g, t => t.sprite(potX + 1, L.sill, SPRITES.plant, colors));
 
   if (L.H > 80) ink(g, t => drawShelf(t, L.x1 + 6, L.W - 6, Math.round(L.H * 0.38)));
 
@@ -1555,7 +1561,7 @@ const INTENTS = {
       '같이 밥 먹기': '걷는 자세에서 고개만 그릇으로 숙였다. 웅크린 안은 몸과 머리 연결이 어색했다' } },
     '겨울 목도리': { row: '겨울을 고양이에게서도 느끼게 하고, 요일마다 색을 바꿔 매일 조금씩 다른 그림이 되게 한다. 일요일 빨강·토요일 파랑은 달력을 따랐다.' },
     이벤트: { row: '사람과 같은 이벤트를 고양이도 함께 즐긴다. 머리에 쓰거나 곁에 둔다.', cells: {
-      기본: '장식 없음', 설날: '세뱃돈 받는 오방색 복주머니를 곁에', '새해 첫날': '사람과 같은 털모자', 정월대보름: '부럼 깨기의 호두를 곁에',
+      기본: '장식 없음', 설날: '윷놀이 윷가락을 곁에. 복주머니는 시계 아래에만 두어 둘이 겹쳐 보이지 않게 했다', '새해 첫날': '사람과 같은 털모자', 정월대보름: '부럼 깨기의 호두를 곁에',
       부처님오신날: '연등회 연꽃을 곁에. 잎받침을 받쳐 꽃으로 읽히게 했다', 추석: '조각보로 싼 선물 보자기를 곁에', 할로윈: '사람 마녀 모자와 짝인 작은 마법사 모자',
       '크리스마스 이브': '빨간 목도리', 크리스마스: '빨간 목도리' } },
   },
