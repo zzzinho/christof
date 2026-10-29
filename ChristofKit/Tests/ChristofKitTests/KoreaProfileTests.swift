@@ -93,3 +93,13 @@ func regionAtLocation(_ latitude: Double, _ longitude: Double, _ expected: Strin
     #expect(CountryRegistry.standard.region(at: CLLocation(latitude: latitude, longitude: longitude)).id == expected)
     #expect(CountryRegistry.standard.region(at: nil).id == "KR.busan")
 }
+
+@Test("역지오코딩한 도시가 서울이면 서울, 부산(구·군 포함)이면 부산, 그 밖은 기본 지역이다", arguments: [
+    (["Seoul"], "KR.seoul"),
+    (["Gijang-gun", "Busan"], "KR.busan"),
+    (["Seongnam-si", "Gyeonggi-do"], "KR.busan"),
+    (["Daejeon"], "KR.busan"),
+])
+func regionInGeocodedCities(_ cities: [String], _ expected: String) {
+    #expect(CountryRegistry.standard.region(inCities: cities).id == expected)
+}

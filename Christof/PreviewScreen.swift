@@ -40,7 +40,7 @@ struct PreviewScreen: View {
         .environment(\.locale, settings.language.locale)
         // 위젯의 "자동" 지역은 앱을 열 때 위치로 고른다.
         .task {
-            let here = CountryRegistry.standard.region(at: await DeviceLocation.current())
+            let here = await RegionGeocoder().region(at: await DeviceLocation.current())
             store.saveLocatedRegion(here)
             if here != located {
                 located = here
