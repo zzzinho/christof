@@ -8,6 +8,8 @@ struct PreviewScreen: View {
     @State private var settings: PreviewSettings
     @State private var realForecast: Result<WeatherForecast, any Error>?
     @State private var located: Region
+    @State private var savedAt: Date?
+    @State private var applyStatus: ApplyStatus?
     private let weather: any WeatherProviding = .standard
     private let factory = SceneContextFactory()
 
@@ -25,7 +27,7 @@ struct PreviewScreen: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
                 SettingsPanel(settings: $settings, located: located, forecastStatus: forecastStatus)
-                SaveBar(hasChanges: settings.sceneSettings != saved, save: save)
+                SaveBar(hasChanges: settings.sceneSettings != saved, status: applyStatus, save: save)
                 TimelineView(.everyMinute) { timeline in
                     // 실패는 위 상태 문구로 보여주고, 장면은 날씨 없이 그린다.
                     let context = factory.context(now: timeline.date, region: region, realForecast: try? realForecast?.get(), settings: settings.sceneSettings)
@@ -47,6 +49,22 @@ struct PreviewScreen: View {
                 WidgetCenter.shared.reloadAllTimelines()
             }
         }
+        .task(id: savedAt) {
+            guard let savedAt else { return }
+            applyStatus = .applying
+            if (try? await WidgetCenter.shared.currentConfigurations())?.isEmpty == true {
+                applyStatus = .noWidget
+                return
+            }
+            // 위젯은 앱에 알릴 길이 없어, 위젯이 남긴 시각을 1초마다 본다.
+            while !Task.isCancelled {
+                if let appliedAt = store.loadAppliedAt(), appliedAt >= savedAt {
+                    applyStatus = .applied
+                    return
+                }
+                try? await Task.sleep(for: .seconds(1))
+            }
+        }
         .task(id: region) {
             realForecast = nil
             let result: Result<WeatherForecast, any Error>
@@ -63,6 +81,8 @@ struct PreviewScreen: View {
     private func save() {
         saved = settings.sceneSettings
         store.save(saved)
+        // 저장한 뒤의 시각이어야, 저장 전에 옛 설정을 읽은 리로드를 적용으로 보지 않는다.
+        savedAt = .now
         WidgetCenter.shared.reloadAllTimelines()
     }
 
@@ -150,19 +170,38 @@ private struct SettingsPanel: View {
     }
 }
 
+private enum ApplyStatus {
+    case applying, applied, noWidget
+}
+
 private struct SaveBar: View {
     let hasChanges: Bool
+    let status: ApplyStatus?
     let save: () -> Void
 
     var body: some View {
         HStack(spacing: 12) {
             Button("Save", action: save)
                 .buttonStyle(.borderedProminent)
-            (hasChanges
-                ? Text("Save to apply the language, time, weather, and event to the widget. Each widget picks its region in Edit Widget.")
-                : Text("These settings are on the widget."))
+            if !hasChanges, status == .applying {
+                ProgressView()
+                    .controlSize(.small)
+            }
+            message
                 .font(.footnote)
                 .foregroundStyle(.secondary)
+        }
+    }
+
+    private var message: Text {
+        if hasChanges {
+            return Text("Save to apply the language, time, weather, and event to the widget. Each widget picks its region in Edit Widget.")
+        }
+        switch status {
+        case .applying: return Text("Applying to the widget…")
+        case .applied: return Text("Applied to the widget.")
+        case .noWidget: return Text("Saved. No widget is placed yet.")
+        case nil: return Text("These settings are on the widget.")
         }
     }
 }

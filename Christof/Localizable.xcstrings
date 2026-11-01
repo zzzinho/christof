@@ -11,6 +11,26 @@
         }
       }
     },
+    "Applied to the widget." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "위젯에 적용했습니다."
+          }
+        }
+      }
+    },
+    "Applying to the widget…" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "위젯에 적용하는 중…"
+          }
+        }
+      }
+    },
     "Auto" : {
       "localizations" : {
         "ko" : {
@@ -147,6 +167,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "저장하면 언어·시각·날씨·이벤트가 위젯에 반영됩니다. 지역은 위젯마다 위젯 편집에서 고릅니다."
+          }
+        }
+      }
+    },
+    "Saved. No widget is placed yet." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "저장했습니다. 놓인 위젯이 아직 없습니다."
           }
         }
       }

@@ -23,7 +23,9 @@ struct WindowTimelineProvider: AppIntentTimelineProvider {
 
     func timeline(for configuration: SelectRegionIntent, in context: Context) async -> Timeline<WindowEntry> {
         let region = await region(for: configuration)
+        let readAt = Date.now
         let settings = store.load()
+        defer { store.markApplied(readAt: readAt) }
         let now = Date.now
         // 예보 실패(오프라인 등)는 날씨 없는 장면으로 그리고, 30분 뒤 다시 시도한다(하루 48회, 리로드 예산 40~70회 안).
         let forecast = try? await weather.forecast(for: region)

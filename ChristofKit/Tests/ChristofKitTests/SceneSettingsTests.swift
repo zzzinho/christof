@@ -59,3 +59,15 @@ func locatedRegionRoundTrip() {
     store.saveLocatedRegion(seoul)
     #expect(store.loadLocatedRegion() == seoul)
 }
+
+@Test("위젯이 설정을 읽은 시각은 더 늦은 값만 남는다")
+func appliedAtKeepsLatest() {
+    let suite = "christof.tests.\(UUID().uuidString)"
+    defer { UserDefaults.standard.removePersistentDomain(forName: suite) }
+    let store = SceneSettingsStore(suiteName: suite)
+    #expect(store.loadAppliedAt() == nil)
+    let later = Date(timeIntervalSinceReferenceDate: 200)
+    store.markApplied(readAt: later)
+    store.markApplied(readAt: Date(timeIntervalSinceReferenceDate: 100))
+    #expect(store.loadAppliedAt() == later)
+}
