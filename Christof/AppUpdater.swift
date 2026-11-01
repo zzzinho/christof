@@ -1,4 +1,5 @@
 #if os(macOS)
+import ChristofKit
 import Sparkle
 import SwiftUI
 
@@ -6,7 +7,7 @@ import SwiftUI
 @MainActor @Observable
 final class AppUpdater: NSObject, SPUUpdaterDelegate, SPUStandardUserDriverDelegate {
     private(set) var availableVersion: String?
-    private(set) var isUpToDate = false
+    private(set) var checked = false
     var installsAutomatically = false {
         didSet { controller.updater.automaticallyDownloadsUpdates = installsAutomatically }
     }
@@ -21,6 +22,10 @@ final class AppUpdater: NSObject, SPUUpdaterDelegate, SPUStandardUserDriverDeleg
         controller.updater.checkForUpdatesInBackground()
     }
 
+    var notice: UpdateNotice {
+        UpdateNotice(checked: checked, newVersion: availableVersion, installsAutomatically: installsAutomatically)
+    }
+
     /// 자동 설치로 이미 받아 두었으면 바로 설치하고, 아니면 Sparkle 의 설치 창을 띄운다.
     func update() {
         if let installNow { installNow() } else { controller.updater.checkForUpdates() }
@@ -30,14 +35,14 @@ final class AppUpdater: NSObject, SPUUpdaterDelegate, SPUStandardUserDriverDeleg
         let version = item.displayVersionString
         MainActor.assumeIsolated {
             availableVersion = version
-            isUpToDate = false
+            checked = true
         }
     }
 
     nonisolated func updaterDidNotFindUpdate(_ updater: SPUUpdater) {
         MainActor.assumeIsolated {
             availableVersion = nil
-            isUpToDate = true
+            checked = true
         }
     }
 

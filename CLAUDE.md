@@ -21,9 +21,9 @@ macOS·iOS용 위젯. 위젯은 창문 모양이고, 사용자가 고른 지역�
 - 앱·위젯 빌드: `xcodebuild -project Christof.xcodeproj -scheme Christof -destination 'generic/platform=iOS Simulator' build`, macOS는 `-destination 'platform=macOS'`. 개발 팀 없이 Sign to Run Locally로 서명하므로 서명 옵션을 덮어쓰지 않는다.
 - 시뮬레이터: 이 Mac에는 iOS 26.5 런타임만 있다(배포 타깃 26.0).
 - macOS 위젯은 LaunchServices에 등록된 앱 사본에서 뜬다. macOS 앱을 임시 `-derivedDataPath` 로 빌드하면 그 사본이 등록되어 데스크톱에 옛 위젯이 뜰 수 있다. macOS 빌드는 기본 DerivedData(Xcode와 같은 곳)로 하고, `pluginkit -m -v -p com.apple.widgetkit-extension` 으로 등록 경로를 확인한다.
-- 릴리스를 `/Applications` 에 설치해 두면 개발 빌드와 번들 id 가 같아서, 둘 다 등록돼 있을 때 chronod 가 어느 쪽 위젯을 띄울지 정해져 있지 않다(pluginkit 이 보여 주는 쪽과 다를 수 있다). 실제로 뜬 쪽은 `pgrep -lf ChristofWidgetExtension` 으로 본다. 한쪽만 쓰려면 다른 쪽을 `lsregister -u <앱 경로>` 로 등록 해제하고, 쓰려는 앱을 `lsregister -f` 하면 위젯이 다시 불린다.
+- 릴리스를 `/Applications` 에 설치해 두면 개발 빌드와 번들 id 가 같아서, 둘 다 등록돼 있을 때 chronod 가 어느 쪽 위젯을 띄울지 정해져 있지 않다(pluginkit 이 보여 주는 쪽과 다를 수 있다). 실제로 뜬 쪽은 `pgrep -lf ChristofWidgetExtension` 으로 본다. 한쪽만 쓰려면 다른 쪽을 `lsregister -u <앱 경로>` 로 등록 해제하고, 쓰려는 앱을 `lsregister -f` 하면 위젯이 다시 불린다. 로컬에서 macOS 를 빌드하면 DerivedData 사본의 위젯이 등록돼 chronod 가 설치한 앱 위젯의 리로드를 "bad extension" 으로 막을 수 있으니, 빌드한 뒤 DerivedData 사본을 `lsregister -u`(위젯은 `pluginkit -r <appex>`) 하고 `/Applications/Christof.app` 을 `lsregister -f` 한다.
 - 위젯이 갱신되지 않으면 chronod 로그를 본다(zsh 에서는 `log` 가 내장 명령이라 `/usr/bin/log` 로 부른다): `/usr/bin/log show --last 2h --style compact --predicate 'process == "chronod" AND eventMessage CONTAINS[c] "christof" AND eventMessage CONTAINS "reload"'`. `reload: failed` 면 그 줄에 이유(예: `too large timeline archive`)가 나오고, 그동안 위젯은 placeholder 에 멈춘다.
-- 배포: 버전 태그 `git tag v0.2.0 && git push origin v0.2.0` (`vMAJOR.MINOR.PATCH` 만 받는다). `.github/workflows/release.yml` 이 GitHub 러너(`xcode-27`)에서 테스트하고 macOS 앱을 Release 로 빌드해 zip 을 릴리스에 올린다. 앱 버전은 태그, 빌드 번호는 실행 번호로 빌드할 때 넣는다(프로젝트의 `MARKETING_VERSION` 은 로컬 빌드에만 쓰인다). macOS 앱은 Sparkle 로 스스로 업데이트한다: 워크플로가 zip 을 EdDSA 키(secret `SPARKLE_PRIVATE_KEY`, 원본은 키를 만든 Mac 의 로그인 키체인 계정 `christof`)로 서명하고 `appcast.xml` 을 함께 올리면, 앱이 `releases/latest/download/appcast.xml` 을 읽는다. 업데이트는 릴리스 빌드에서만 켜진다. 키를 잃으면 기존 앱이 더는 업데이트되지 않는다. 설치·삭제는 루트의 `install.sh`(버전 인자로 특정 버전)·`uninstall.sh` 를 README 처럼 main 브랜치에서 받아 실행하므로, 스크립트를 고치면 main 에 올라가야 반영된다. iOS 는 유료 개발자 계정 없이 배포할 수 없어 빠져 있다. 버전은 설정이 호환되지 않게 바뀌면 MAJOR, 이벤트·지역·장면처럼 보이는 것이 늘면 MINOR, 고친 것만 있으면 PATCH 를 올린다.
+- 배포: 버전 태그 `git tag v0.2.0 && git push origin v0.2.0` (`vMAJOR.MINOR.PATCH` 만 받는다). `.github/workflows/release.yml` 이 GitHub 러너(`xcode-27`)에서 테스트하고 macOS 앱을 Release 로 빌드해 zip 을 릴리스에 올린다. 앱 버전은 태그, 빌드 번호는 실행 번호로 빌드할 때 넣는다(프로젝트의 `MARKETING_VERSION` 은 로컬 빌드에만 쓰인다). macOS 앱은 Sparkle 로 스스로 업데이트한다: 워크플로가 zip 을 EdDSA 키(secret `SPARKLE_PRIVATE_KEY`, 원본은 키를 만든 Mac 의 로그인 키체인 계정 `christof`)로 서명하고 `appcast.xml` 을 함께 올리면, 앱이 `releases/latest/download/appcast.xml` 을 읽는다. 업데이트는 릴리스 빌드에서만 켜진다. 키를 잃으면 기존 앱이 더는 업데이트되지 않는다. 워크플로는 앱과 위젯을 번들 id 신원(`designated => identifier …`)으로 다시 서명한다. ad-hoc 기본 신원(cdhash)은 빌드마다 바뀌어, 위치 서비스(`/var/db/locationd/clients.plist`)가 옛 cdhash 로 기억한 앱의 위치 요청 등록을 끝내지 않기 때문이다. 설치·삭제는 루트의 `install.sh`(버전 인자로 특정 버전)·`uninstall.sh` 를 README 처럼 main 브랜치에서 받아 실행하므로, 스크립트를 고치면 main 에 올라가야 반영된다. iOS 는 유료 개발자 계정 없이 배포할 수 없어 빠져 있다. 버전은 설정이 호환되지 않게 바뀌면 MAJOR, 이벤트·지역·장면처럼 보이는 것이 늘면 MINOR, 고친 것만 있으면 PATCH 를 올린다.
 
 ## 코드 규칙: SRP·OCP
 
@@ -51,6 +51,13 @@ macOS·iOS용 위젯. 위젯은 창문 모양이고, 사용자가 고른 지역�
 ## 작업 방식
 
 - git으로 관리한다. 빌드·테스트가 통과한 단위로 커밋한다.
+
+## 테스트는 설명서
+
+- 기능을 만들거나 고치면 먼저 그 동작을 `@Suite("<기능>")` 아래 사용자 관점 문장의 `@Test("…")` 로 적어 실패를 보고, 그다음 통과시킨다. `swift test --package-path ChristofKit --filter <Suite 타입>` 출력이 그 기능의 설명서다(예: `AutoRegionSpec`, `WidgetApplyStatusSpec`, `UpdateNoticeSpec`).
+- 화면(SwiftUI)과 위젯 코드에는 판단을 두지 않는다. 무엇을 보여 줄지는 ChristofKit 의 값 타입이 정하고 화면은 그 값을 그린다.
+- 위치·네트워크·시계처럼 바깥에 기대는 것은 주입받아 실패 경로(권한 없음, 응답 없음, 오류)도 문장으로 남긴다.
+- 테스트가 대신하지 못하는 것(OS 권한·서명·위젯 리로드, 예보 데이터 품질)은 아래 완료 기준으로 확인한다.
 
 ## 완료 기준
 

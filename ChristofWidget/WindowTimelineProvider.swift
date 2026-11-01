@@ -1,4 +1,5 @@
 import ChristofKit
+import os
 import WidgetKit
 
 struct WindowEntry: TimelineEntry {
@@ -28,7 +29,13 @@ struct WindowTimelineProvider: AppIntentTimelineProvider {
         defer { store.markApplied(readAt: readAt) }
         let now = Date.now
         // 예보 실패(오프라인 등)는 날씨 없는 장면으로 그리고, 30분 뒤 다시 시도한다(하루 48회, 리로드 예산 40~70회 안).
-        let forecast = try? await weather.forecast(for: region)
+        let forecast: WeatherForecast?
+        do {
+            forecast = try await weather.forecast(for: region)
+        } catch {
+            Self.logger.error("예보 실패 \(region.id, privacy: .public): \(error.localizedDescription, privacy: .public)")
+            forecast = nil
+        }
         // 시계 분침이 5분 눈금이라 5분 경계마다 다시 그린다.
         let step = 5.0 * 60
         let start = Date(timeIntervalSinceReferenceDate: (now.timeIntervalSinceReferenceDate / step).rounded(.down) * step)
@@ -44,13 +51,17 @@ struct WindowTimelineProvider: AppIntentTimelineProvider {
         return Timeline(entries: entries, policy: policy)
     }
 
+    private static let logger = Logger(subsystem: "com.christof.Christof", category: "widget")
+
     // "자동"이면 위젯이 위치를 직접 봐서, 앱을 열지 않아도 도시를 옮기면 바뀐다. 위치를 못 보면 앱이나 위젯이 마지막에 고른 지역을 쓴다.
     private func region(for configuration: SelectRegionIntent) async -> Region {
         if let chosen = configuration.chosenRegion { return chosen }
-        guard let location = await WidgetLocation.current() else { return store.loadLocatedRegion() }
-        let region = await RegionGeocoder().region(at: location)
-        store.saveLocatedRegion(region)
-        return region
+        let auto = await AutoRegionResolver().resolve(fallback: store.loadLocatedRegion()) {
+            await WidgetLocation.current().map(LocationReading.location) ?? .unavailable
+        }
+        Self.logger.info("자동 지역 \(auto.region.id, privacy: .public): \(String(describing: auto.source), privacy: .public)")
+        if auto.source == .location { store.saveLocatedRegion(auto.region) }
+        return auto.region
     }
 
     private func entry(at date: Date, region: Region, forecast: WeatherForecast?, settings: SceneSettings) -> WindowEntry {

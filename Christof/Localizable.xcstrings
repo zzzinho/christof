@@ -71,6 +71,16 @@
         }
       }
     },
+    "Couldn't get your location, so Auto uses %@." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "위치를 받지 못해 '자동'은 %@ 지역을 씁니다."
+          }
+        }
+      }
+    },
     "Couldn't load the real forecast: %@" : {
       "localizations" : {
         "ko" : {
@@ -137,6 +147,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "실제 예보 불러오는 중…"
+          }
+        }
+      }
+    },
+    "Location access is off, so Auto uses %@. Allow location access for Christof in Settings." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "위치 권한이 없어 '자동'은 %@ 지역을 씁니다. 설정에서 Christof 의 위치 접근을 허용해 주세요."
           }
         }
       }

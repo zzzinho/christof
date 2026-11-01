@@ -1,4 +1,5 @@
 import ChristofKit
+import os
 import SwiftUI
 import WidgetKit
 
@@ -8,8 +9,9 @@ struct PreviewScreen: View {
     @State private var settings: PreviewSettings
     @State private var realForecast: Result<WeatherForecast, any Error>?
     @State private var located: Region
+    @State private var autoSource: AutoRegion.Source?
     @State private var savedAt: Date?
-    @State private var applyStatus: ApplyStatus?
+    @State private var applyStatus: WidgetApplyStatus?
     private let weather: any WeatherProviding = .standard
     #if os(macOS)
     @Environment(AppUpdater.self) private var updater: AppUpdater?
@@ -29,7 +31,7 @@ struct PreviewScreen: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
-                SettingsPanel(settings: $settings, located: located, forecastStatus: forecastStatus)
+                SettingsPanel(settings: $settings, located: located, autoSource: autoSource, forecastStatus: forecastStatus)
                 SaveBar(hasChanges: settings.sceneSettings != saved, status: applyStatus, save: save)
                 TimelineView(.everyMinute) { timeline in
                     // 실패는 위 상태 문구로 보여주고, 장면은 날씨 없이 그린다.
@@ -46,28 +48,26 @@ struct PreviewScreen: View {
         }
         // 화면 문구(String Catalog)와 날짜 형식이 저장 전에도 고른 언어를 따른다.
         .environment(\.locale, settings.language.locale)
-        // 위젯의 "자동" 지역은 앱을 열 때 위치로 고른다.
+        // 위젯의 "자동" 지역은 앱을 열 때 위치로 고른다. 위치를 못 받으면 마지막에 고른 지역을 덮지 않고 그 이유를 보여 준다.
         .task {
-            let here = await RegionGeocoder().region(at: await DeviceLocation.current())
-            store.saveLocatedRegion(here)
-            if here != located {
-                located = here
+            let auto = await AutoRegionResolver().resolve(fallback: located) { await DeviceLocation.current() }
+            autoSource = auto.source
+            Self.logger.info("자동 지역 \(auto.region.id, privacy: .public): \(String(describing: auto.source), privacy: .public)")
+            guard auto.source == .location else { return }
+            store.saveLocatedRegion(auto.region)
+            if auto.region != located {
+                located = auto.region
                 WidgetCenter.shared.reloadAllTimelines()
             }
         }
         .task(id: savedAt) {
             guard let savedAt else { return }
-            applyStatus = .applying
-            if (try? await WidgetCenter.shared.currentConfigurations())?.isEmpty == true {
-                applyStatus = .noWidget
-                return
-            }
+            let placedWidgets = (try? await WidgetCenter.shared.currentConfigurations())?.count
             // 위젯은 앱에 알릴 길이 없어, 위젯이 남긴 시각을 1초마다 본다.
             while !Task.isCancelled {
-                if let appliedAt = store.loadAppliedAt(), appliedAt >= savedAt {
-                    applyStatus = .applied
-                    return
-                }
+                let status = WidgetApplyStatus(savedAt: savedAt, appliedAt: store.loadAppliedAt(), placedWidgets: placedWidgets)
+                applyStatus = status
+                if status != .applying { return }
                 try? await Task.sleep(for: .seconds(1))
             }
         }
@@ -83,6 +83,8 @@ struct PreviewScreen: View {
             if !Task.isCancelled { realForecast = result }
         }
     }
+
+    private static let logger = Logger(subsystem: "com.christof.Christof", category: "location")
 
     private func save() {
         saved = settings.sceneSettings
@@ -112,6 +114,7 @@ struct PreviewScreen: View {
 private struct SettingsPanel: View {
     @Binding var settings: PreviewSettings
     let located: Region
+    let autoSource: AutoRegion.Source?
     let forecastStatus: Text
 
     private static let occasions = CountryRegistry.standard.profiles.flatMap(\.occasions)
@@ -133,6 +136,11 @@ private struct SettingsPanel: View {
                     ForEach(CountryRegistry.standard.regions) { Text($0.name[language]).tag(Optional($0)) }
                 }
                 .labelsHidden()
+            }
+            if settings.region == nil, let reason = autoRegionReason(language: language) {
+                reason
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
             }
             LabeledContent("Time") {
                 Picker("Time", selection: $settings.usesCurrentTime) {
@@ -174,15 +182,20 @@ private struct SettingsPanel: View {
             }
         }
     }
-}
 
-private enum ApplyStatus {
-    case applying, applied, noWidget
+    private func autoRegionReason(language: AppLanguage) -> Text? {
+        let name = located.name[language]
+        switch autoSource {
+        case .denied: return Text("Location access is off, so Auto uses \(name). Allow location access for Christof in Settings.")
+        case .unavailable: return Text("Couldn't get your location, so Auto uses \(name).")
+        case .location, nil: return nil
+        }
+    }
 }
 
 private struct SaveBar: View {
     let hasChanges: Bool
-    let status: ApplyStatus?
+    let status: WidgetApplyStatus?
     let save: () -> Void
 
     var body: some View {
@@ -260,15 +273,21 @@ private struct UpdatePanel: View {
             Text("Updates")
                 .font(.headline)
             Toggle("Install updates automatically", isOn: $updater.installsAutomatically)
-            if let version = updater.availableVersion {
+            switch updater.notice {
+            case .none:
+                EmptyView()
+            case .upToDate:
+                Text("Christof is up to date.")
+            case .available(let version):
                 HStack(spacing: 12) {
-                    updater.installsAutomatically
-                        ? Text("Version \(version) installs when you close the app.")
-                        : Text("Version \(version) is available.")
+                    Text("Version \(version) is available.")
                     Button("Update", action: updater.update)
                 }
-            } else if updater.isUpToDate {
-                Text("Christof is up to date.")
+            case .installsOnQuit(let version):
+                HStack(spacing: 12) {
+                    Text("Version \(version) installs when you close the app.")
+                    Button("Update", action: updater.update)
+                }
             }
             Text("Checks for a new version each time the app opens.")
                 .foregroundStyle(.secondary)

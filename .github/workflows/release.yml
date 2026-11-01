@@ -20,6 +20,14 @@ jobs:
           xcodebuild -project Christof.xcodeproj -scheme Christof -configuration Release
           -destination 'generic/platform=macOS' -derivedDataPath build
           MARKETING_VERSION=${GITHUB_REF_NAME#v} CURRENT_PROJECT_VERSION=${{ github.run_number }} build
+      # ad-hoc 서명의 기본 신원은 빌드마다 바뀌는 cdhash 라, macOS 위치 서비스가 업데이트한 앱을 다른 앱으로 보고 등록을 끝내지 않는다.
+      # 앱과 위젯을 번들 id 신원으로 다시 서명해 버전이 바뀌어도 같은 앱으로 보이게 한다. Xcode 서명 옵션으로 주면 Sparkle 프레임워크까지 같은 신원이 붙어 서명이 깨진다.
+      # ponytail: 번들 id 만 보는 신원이라 같은 id 를 단 다른 앱과 구별하지 못한다. Developer ID 로 서명하면 인증서 기반 신원으로 바꾼다.
+      - run: |
+          app=build/Build/Products/Release/Christof.app
+          codesign -f -s - --preserve-metadata=entitlements -r='designated => identifier "com.christof.Christof.Widget"' "$app/Contents/PlugIns/ChristofWidgetExtension.appex"
+          codesign -f -s - --preserve-metadata=entitlements -r='designated => identifier "com.christof.Christof"' "$app"
+          codesign --verify --deep --strict "$app"
       - run: ditto -c -k --keepParent build/Build/Products/Release/Christof.app Christof-macOS.zip
       # 앱의 Sparkle 이 releases/latest/download/appcast.xml 을 읽어 새 버전을 찾는다. 개발자 인증서가 없어 zip 의 EdDSA 서명만으로 업데이트를 믿는다.
       # 개인키는 만든 Mac 의 로그인 키체인(계정 christof)과 이 secret 에만 있다. 잃으면 기존 앱은 더 업데이트되지 않아 install.sh 로 다시 설치해야 한다.
