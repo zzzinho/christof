@@ -11,6 +11,9 @@ struct PreviewScreen: View {
     @State private var savedAt: Date?
     @State private var applyStatus: ApplyStatus?
     private let weather: any WeatherProviding = .standard
+    #if os(macOS)
+    @Environment(AppUpdater.self) private var updater: AppUpdater?
+    #endif
     private let factory = SceneContextFactory()
 
     init() {
@@ -34,6 +37,9 @@ struct PreviewScreen: View {
                     WindowPreviews(context: context)
                 }
                 WidgetGuide()
+                #if os(macOS)
+                if let updater { UpdatePanel(updater: updater) }
+                #endif
             }
             .padding()
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -244,6 +250,33 @@ private struct WindowPreviews: View {
         }
     }
 }
+
+#if os(macOS)
+private struct UpdatePanel: View {
+    @Bindable var updater: AppUpdater
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("Updates")
+                .font(.headline)
+            Toggle("Install updates automatically", isOn: $updater.installsAutomatically)
+            if let version = updater.availableVersion {
+                HStack(spacing: 12) {
+                    updater.installsAutomatically
+                        ? Text("Version \(version) installs when you close the app.")
+                        : Text("Version \(version) is available.")
+                    Button("Update", action: updater.update)
+                }
+            } else if updater.isUpToDate {
+                Text("Christof is up to date.")
+            }
+            Text("Checks for a new version each time the app opens.")
+                .foregroundStyle(.secondary)
+        }
+        .font(.callout)
+    }
+}
+#endif
 
 private struct WidgetGuide: View {
     var body: some View {

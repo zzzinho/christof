@@ -10,6 +10,7 @@
 		CF0000000000000000000019 /* ChristofKit in Frameworks */ = {isa = PBXBuildFile; productRef = CF000000000000000000001F /* ChristofKit */; };
 		CF000000000000000000001A /* ChristofKit in Frameworks */ = {isa = PBXBuildFile; productRef = CF0000000000000000000020 /* ChristofKit */; };
 		CF000000000000000000001B /* ChristofWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = CF0000000000000000000005 /* ChristofWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		CF000000000000000000002A /* Sparkle in Frameworks */ = {isa = PBXBuildFile; platformFilters = (macos, ); productRef = CF000000000000000000002C /* Sparkle */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -61,6 +62,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CF0000000000000000000019 /* ChristofKit in Frameworks */,
+				CF000000000000000000002A /* Sparkle in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -125,6 +127,7 @@
 			name = Christof;
 			packageProductDependencies = (
 				CF000000000000000000001F /* ChristofKit */,
+				CF000000000000000000002C /* Sparkle */,
 			);
 			productName = Christof;
 			productReference = CF0000000000000000000004 /* Christof.app */;
@@ -183,6 +186,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				CF000000000000000000001E /* XCLocalSwiftPackageReference "ChristofKit" */,
+				CF000000000000000000002B /* XCRemoteSwiftPackageReference "Sparkle" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = CF0000000000000000000003 /* Products */;
@@ -294,7 +298,7 @@
 			buildSettings = {
 				"CODE_SIGN_ENTITLEMENTS[sdk=iphoneos*]" = Config/Christof.entitlements;
 				"CODE_SIGN_ENTITLEMENTS[sdk=iphonesimulator*]" = Config/Christof.entitlements;
-				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "Config/Christof-macOS.entitlements";
+				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "Config/Christof-macOS-App.entitlements";
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -304,6 +308,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_RESOURCE_ACCESS_LOCATION = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				"INFOPLIST_FILE[sdk=macosx*]" = "Config/Christof-macOS-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = Christof;
 				INFOPLIST_KEY_NSLocationUsageDescription = "Christof uses your location to show the view of the region you're in.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Christof uses your location to show the view of the region you're in.";
@@ -336,7 +341,7 @@
 			buildSettings = {
 				"CODE_SIGN_ENTITLEMENTS[sdk=iphoneos*]" = Config/Christof.entitlements;
 				"CODE_SIGN_ENTITLEMENTS[sdk=iphonesimulator*]" = Config/Christof.entitlements;
-				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "Config/Christof-macOS.entitlements";
+				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "Config/Christof-macOS-App.entitlements";
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -346,6 +351,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_RESOURCE_ACCESS_LOCATION = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				"INFOPLIST_FILE[sdk=macosx*]" = "Config/Christof-macOS-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = Christof;
 				INFOPLIST_KEY_NSLocationUsageDescription = "Christof uses your location to show the view of the region you're in.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Christof uses your location to show the view of the region you're in.";
@@ -496,6 +502,17 @@
 		};
 /* End XCLocalSwiftPackageReference section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		CF000000000000000000002B /* XCRemoteSwiftPackageReference "Sparkle" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sparkle-project/Sparkle";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.10.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
 		CF000000000000000000001F /* ChristofKit */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -504,6 +521,11 @@
 		CF0000000000000000000020 /* ChristofKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = ChristofKit;
+		};
+		CF000000000000000000002C /* Sparkle */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CF000000000000000000002B /* XCRemoteSwiftPackageReference "Sparkle" */;
+			productName = Sparkle;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

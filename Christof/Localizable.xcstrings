@@ -51,6 +51,26 @@
         }
       }
     },
+    "Checks for a new version each time the app opens." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "앱을 열 때마다 새 버전을 확인합니다."
+          }
+        }
+      }
+    },
+    "Christof is up to date." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "최신 버전입니다."
+          }
+        }
+      }
+    },
     "Couldn't load the real forecast: %@" : {
       "localizations" : {
         "ko" : {
@@ -77,6 +97,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "이벤트"
+          }
+        }
+      }
+    },
+    "Install updates automatically" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "업데이트 자동 설치"
           }
         }
       }
@@ -291,12 +321,52 @@
         }
       }
     },
+    "Update" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "업데이트"
+          }
+        }
+      }
+    },
+    "Updates" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "업데이트"
+          }
+        }
+      }
+    },
     "Version %@ (%@)" : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "버전 %1$@ (%2$@)"
+          }
+        }
+      }
+    },
+    "Version %@ installs when you close the app." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "앱을 닫으면 %@ 버전으로 업데이트합니다."
+          }
+        }
+      }
+    },
+    "Version %@ is available." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 버전이 나왔습니다."
           }
         }
       }

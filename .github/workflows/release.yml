@@ -21,7 +21,29 @@ jobs:
           -destination 'generic/platform=macOS' -derivedDataPath build
           MARKETING_VERSION=${GITHUB_REF_NAME#v} CURRENT_PROJECT_VERSION=${{ github.run_number }} build
       - run: ditto -c -k --keepParent build/Build/Products/Release/Christof.app Christof-macOS.zip
-      - run: gh release create "$GITHUB_REF_NAME" Christof-macOS.zip --generate-notes --notes "$NOTES"
+      # 앱의 Sparkle 이 releases/latest/download/appcast.xml 을 읽어 새 버전을 찾는다. 개발자 인증서가 없어 zip 의 EdDSA 서명만으로 업데이트를 믿는다.
+      # 개인키는 만든 Mac 의 로그인 키체인(계정 christof)과 이 secret 에만 있다. 잃으면 기존 앱은 더 업데이트되지 않아 install.sh 로 다시 설치해야 한다.
+      - run: |
+          enclosure=$(echo "$SPARKLE_PRIVATE_KEY" | build/SourcePackages/artifacts/sparkle/Sparkle/bin/sign_update --ed-key-file - Christof-macOS.zip)
+          cat > appcast.xml <<EOF
+          <?xml version="1.0" encoding="utf-8"?>
+          <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+            <channel>
+              <title>Christof</title>
+              <item>
+                <title>${GITHUB_REF_NAME#v}</title>
+                <pubDate>$(date -R)</pubDate>
+                <sparkle:version>${{ github.run_number }}</sparkle:version>
+                <sparkle:shortVersionString>${GITHUB_REF_NAME#v}</sparkle:shortVersionString>
+                <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
+                <enclosure url="https://github.com/${{ github.repository }}/releases/download/$GITHUB_REF_NAME/Christof-macOS.zip" type="application/octet-stream" $enclosure/>
+              </item>
+            </channel>
+          </rss>
+          EOF
+        env:
+          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+      - run: gh release create "$GITHUB_REF_NAME" Christof-macOS.zip appcast.xml --generate-notes --notes "$NOTES"
         env:
           GH_TOKEN: ${{ github.token }}
           NOTES: |
