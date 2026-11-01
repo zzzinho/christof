@@ -17,15 +17,17 @@ struct WindowTimelineProvider: AppIntentTimelineProvider {
         entry(at: .now, region: store.loadLocatedRegion(), forecast: nil, settings: .live)
     }
 
-    // 위젯 갤러리·편집 화면은 바로 떠야 하므로 네트워크를 기다리지 않는다.
+    // 위젯 갤러리·편집 화면은 바로 떠야 하므로 네트워크와 위치를 기다리지 않는다.
     func snapshot(for configuration: SelectRegionIntent, in context: Context) async -> WindowEntry {
-        entry(at: .now, region: configuration.chosenRegion ?? store.loadLocatedRegion(), forecast: nil, settings: store.load())
+        let settings = store.load()
+        let region = await AutoRegionResolver().resolve(widget: configuration.chosenRegion, app: settings.region, fallback: store.loadLocatedRegion()) { .unavailable }.region
+        return entry(at: .now, region: region, forecast: nil, settings: settings)
     }
 
     func timeline(for configuration: SelectRegionIntent, in context: Context) async -> Timeline<WindowEntry> {
-        let region = await region(for: configuration)
         let readAt = Date.now
         let settings = store.load()
+        let region = await region(for: configuration, settings: settings)
         defer { store.markApplied(readAt: readAt) }
         let now = Date.now
         // 예보 실패(오프라인 등)는 날씨 없는 장면으로 그리고, 30분 뒤 다시 시도한다(하루 48회, 리로드 예산 40~70회 안).
@@ -53,13 +55,12 @@ struct WindowTimelineProvider: AppIntentTimelineProvider {
 
     private static let logger = Logger(subsystem: "com.christof.Christof", category: "widget")
 
-    // "자동"이면 위젯이 위치를 직접 봐서, 앱을 열지 않아도 도시를 옮기면 바뀐다. 위치를 못 보면 앱이나 위젯이 마지막에 고른 지역을 쓴다.
-    private func region(for configuration: SelectRegionIntent) async -> Region {
-        if let chosen = configuration.chosenRegion { return chosen }
-        let auto = await AutoRegionResolver().resolve(fallback: store.loadLocatedRegion()) {
+    // 위젯과 앱이 모두 "자동"이면 위젯이 위치를 직접 봐서, 앱을 열지 않아도 도시를 옮기면 바뀐다. 위치를 못 보면 앱이나 위젯이 마지막에 고른 지역을 쓴다.
+    private func region(for configuration: SelectRegionIntent, settings: SceneSettings) async -> Region {
+        let auto = await AutoRegionResolver().resolve(widget: configuration.chosenRegion, app: settings.region, fallback: store.loadLocatedRegion()) {
             await WidgetLocation.current().map(LocationReading.location) ?? .unavailable
         }
-        Self.logger.info("자동 지역 \(auto.region.id, privacy: .public): \(String(describing: auto.source), privacy: .public)")
+        Self.logger.info("지역 \(auto.region.id, privacy: .public): \(String(describing: auto.source), privacy: .public)")
         if auto.source == .location { store.saveLocatedRegion(auto.region) }
         return auto.region
     }

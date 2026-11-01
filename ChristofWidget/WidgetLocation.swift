@@ -2,7 +2,7 @@ import CoreLocation
 
 /// 위젯은 앱이 받은 위치 권한으로 위치를 본다(Info.plist 의 NSWidgetWantsLocation).
 /// 위젯은 화면에 "사용 중"인 앱이 아니라 CLLocationUpdate.liveUpdates 가 위치를 주지 않을 수 있어, 한 번 묻는 requestLocation 을 쓴다.
-/// macOS 위젯에서 권한이 넘어오는지는 확인하지 못했다. 넘어오지 않으면 isAuthorizedForWidgetUpdates 가 false 라 앱이 고른 지역으로 돌아간다.
+/// 권한이 넘어오지 않으면 isAuthorizedForWidgetUpdates 가 false 라 앱이 고른 지역으로 돌아간다(macOS 위젯에서 넘어오는 것은 0.7.1 에서 확인했다).
 @MainActor
 final class WidgetLocation: NSObject, CLLocationManagerDelegate {
     private let manager = CLLocationManager()

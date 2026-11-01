@@ -38,4 +38,22 @@ struct AutoRegionSpec {
         let result = await resolver.resolve(fallback: seoul) { .unavailable }
         #expect(result == AutoRegion(region: seoul, source: .unavailable))
     }
+
+    @Test("위젯이 '자동'이고 앱에서 지역을 저장했으면, 위치를 보지 않고 그 지역을 쓴다")
+    func appRegion() async {
+        let result = await resolver.resolve(app: busan, fallback: seoul) {
+            Issue.record("위치를 보지 않아야 한다")
+            return .location(cityHall)
+        }
+        #expect(result == AutoRegion(region: busan, source: .app))
+    }
+
+    @Test("위젯 편집에서 지역을 골랐으면 앱에서 저장한 지역보다 먼저다")
+    func widgetRegion() async {
+        let result = await resolver.resolve(widget: seoul, app: busan, fallback: busan) {
+            Issue.record("위치를 보지 않아야 한다")
+            return .unavailable
+        }
+        #expect(result == AutoRegion(region: seoul, source: .widget))
+    }
 }

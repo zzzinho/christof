@@ -7,10 +7,10 @@ public enum LocationReading: Sendable {
     case unavailable
 }
 
-/// "자동" 지역과, 그 지역을 위치로 골랐는지 아니면 못 골라 마지막 지역을 그대로 쓰는지.
+/// 위젯이 그릴 지역과 그 출처. 위치를 못 받았으면(`denied`, `unavailable`) 마지막에 고른 지역을 그대로 쓴다.
 public struct AutoRegion: Equatable, Sendable {
     public enum Source: Equatable, Sendable {
-        case location, denied, unavailable
+        case widget, app, location, denied, unavailable
     }
 
     public let region: Region
@@ -31,8 +31,11 @@ public struct AutoRegionResolver: Sendable {
         self.regionAt = regionAt
     }
 
-    public func resolve(fallback: Region, locate: @escaping @Sendable () async -> LocationReading) async -> AutoRegion {
-        switch await Self.first(within: timeout, locate) {
+    /// 위젯 편집에서 고른 지역, 앱에서 저장한 지역, 위치 순으로 고른다.
+    public func resolve(widget: Region? = nil, app: Region? = nil, fallback: Region, locate: @escaping @Sendable () async -> LocationReading) async -> AutoRegion {
+        if let widget { return AutoRegion(region: widget, source: .widget) }
+        if let app { return AutoRegion(region: app, source: .app) }
+        return switch await Self.first(within: timeout, locate) {
         case .location(let location)?: AutoRegion(region: await regionAt(location), source: .location)
         case .denied?: AutoRegion(region: fallback, source: .denied)
         case .unavailable?, nil: AutoRegion(region: fallback, source: .unavailable)

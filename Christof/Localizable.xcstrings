@@ -211,12 +211,12 @@
         }
       }
     },
-    "Save to apply the language, time, weather, and event to the widget. Each widget picks its region in Edit Widget." : {
+    "Save to apply these settings to the widget. A widget given its own region in Edit Widget keeps that region." : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "저장하면 언어·시각·날씨·이벤트가 위젯에 반영됩니다. 지역은 위젯마다 위젯 편집에서 고릅니다."
+            "value" : "저장하면 이 설정이 위젯에 반영됩니다. 위젯 편집에서 지역을 따로 고른 위젯은 그 지역을 그립니다."
           }
         }
       }
@@ -231,12 +231,12 @@
         }
       }
     },
-    "Selecting the widget opens this app. Change the language, time, weather, or event here and save to apply them to the widget." : {
+    "Selecting the widget opens this app. Change the region, language, time, weather, or event here and save to apply them to the widget." : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "위젯을 누르면 이 앱이 열립니다. 언어·시각·날씨·이벤트를 바꾸고 저장하면 위젯에 반영됩니다."
+            "value" : "위젯을 누르면 이 앱이 열립니다. 지역·언어·시각·날씨·이벤트를 바꾸고 저장하면 위젯에 반영됩니다."
           }
         }
       }
@@ -311,22 +311,22 @@
         }
       }
     },
-    "To choose the region, right-click the widget → Edit Widget." : {
+    "To give one widget its own region, right-click it → Edit Widget." : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "지역은 위젯을 우클릭 → 위젯 편집에서 고릅니다."
+            "value" : "위젯마다 지역을 따로 고르려면 위젯을 우클릭 → 위젯 편집에서 고릅니다."
           }
         }
       }
     },
-    "To choose the region, touch and hold the widget → Edit Widget." : {
+    "To give one widget its own region, touch and hold it → Edit Widget." : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "지역은 위젯을 길게 눌러 위젯 편집에서 고릅니다."
+            "value" : "위젯마다 지역을 따로 고르려면 위젯을 길게 눌러 위젯 편집에서 고릅니다."
           }
         }
       }

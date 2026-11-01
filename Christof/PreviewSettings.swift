@@ -1,7 +1,7 @@
 import ChristofKit
 import Foundation
 
-/// 화면에서 편집 중인 값. 지역은 미리보기용이고(nil 은 위치로 고른 지역), 나머지는 저장하면 위젯에 반영된다.
+/// 화면에서 편집 중인 값. 저장하면 위젯에 반영된다.
 struct PreviewSettings: Equatable {
     var region: Region?
     var usesCurrentTime: Bool
@@ -11,6 +11,7 @@ struct PreviewSettings: Equatable {
     var language: AppLanguage
 
     init(saved: SceneSettings) {
+        region = saved.region
         usesCurrentTime = saved.fixedDate == nil
         customDate = saved.fixedDate ?? .now
         forcedCondition = saved.forcedWeather
@@ -19,6 +20,6 @@ struct PreviewSettings: Equatable {
     }
 
     var sceneSettings: SceneSettings {
-        SceneSettings(fixedDate: usesCurrentTime ? nil : customDate, forcedWeather: forcedCondition, occasion: occasion, language: language)
+        SceneSettings(region: region, fixedDate: usesCurrentTime ? nil : customDate, forcedWeather: forcedCondition, occasion: occasion, language: language)
     }
 }

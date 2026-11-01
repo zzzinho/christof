@@ -188,7 +188,7 @@ private struct SettingsPanel: View {
         switch autoSource {
         case .denied: return Text("Location access is off, so Auto uses \(name). Allow location access for Christof in Settings.")
         case .unavailable: return Text("Couldn't get your location, so Auto uses \(name).")
-        case .location, nil: return nil
+        case .location, .widget, .app, nil: return nil
         }
     }
 }
@@ -214,7 +214,7 @@ private struct SaveBar: View {
 
     private var message: Text {
         if hasChanges {
-            return Text("Save to apply the language, time, weather, and event to the widget. Each widget picks its region in Edit Widget.")
+            return Text("Save to apply these settings to the widget. A widget given its own region in Edit Widget keeps that region.")
         }
         switch status {
         case .applying: return Text("Applying to the widget…")
@@ -304,12 +304,12 @@ private struct WidgetGuide: View {
                 .font(.headline)
             #if os(macOS)
             Text("Right-click the desktop → Edit Widgets → find Christof and place it on the desktop.")
-            Text("To choose the region, right-click the widget → Edit Widget.")
+            Text("To give one widget its own region, right-click it → Edit Widget.")
             #else
             Text("Touch and hold the Home Screen → Edit → Add Widget → choose Christof.")
-            Text("To choose the region, touch and hold the widget → Edit Widget.")
+            Text("To give one widget its own region, touch and hold it → Edit Widget.")
             #endif
-            Text("Selecting the widget opens this app. Change the language, time, weather, or event here and save to apply them to the widget.")
+            Text("Selecting the widget opens this app. Change the region, language, time, weather, or event here and save to apply them to the widget.")
             Text("Version \(Self.info("CFBundleShortVersionString")) (\(Self.info("CFBundleVersion")))")
                 .foregroundStyle(.secondary)
         }
