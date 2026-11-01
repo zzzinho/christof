@@ -89,7 +89,7 @@ enum LofiPalette {
         "day-sky-2": 0x62A0D6,
         "day-sky-3": 0x82B9E0,
         "day-sky-4": 0xA8D2EA,
-        "day-sea": 0x3A8DB0,
+        "day-sea": 0x2AA3BA,
         "day-mountain": 0x6FA08A,
         "day-city-far": 0x8FA2B8,
         "day-city": 0x6C8098,
