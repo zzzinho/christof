@@ -158,7 +158,6 @@ private struct SaveBar: View {
         HStack(spacing: 12) {
             Button("Save", action: save)
                 .buttonStyle(.borderedProminent)
-                .disabled(!hasChanges)
             (hasChanges
                 ? Text("Save to apply the language, time, weather, and event to the widget. Each widget picks its region in Edit Widget.")
                 : Text("These settings are on the widget."))
