@@ -10,7 +10,7 @@ disable-model-invocation: true
 
 ## 범위
 
-- 고치는 파일: `ChristofKit/`, `Christof/`, `ChristofWidget/`, `Config/`, `Christof.xcodeproj/`, `CLAUDE.md`
+- 고치는 파일: `ChristofKit/`, `Christof/`, `ChristofWidget/`, `Config/`, `Christof.xcodeproj/`, `CLAUDE.md`, `docs/UX.md`
 - 읽기만 하는 파일: `design/` (`DESIGN.md`, `design.css`, `*.html`, `assets/`)
 - 그리기(`Rendering/`)의 기준은 시안이다. `design/DESIGN.md` 의 규칙과 고른 시안을 따른다. 시안 경로는 디자인 세션이 넘길 때 알린다. 시안과 다르게 그려야 하거나 시안을 바꿔야 하면 고치지 않고, 디자인 세션에서 할 일로 사용자에게 알린다.
 

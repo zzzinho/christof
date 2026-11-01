@@ -13,7 +13,7 @@ disable-model-invocation: true
 ## 범위
 
 - 고치는 파일: `design/` (`DESIGN.md`, `design.css`, `*.html`, `assets/`)
-- 읽기만 하는 파일: `Christof/`, `ChristofKit/`, `ChristofWidget/`, `Config/`, `Christof.xcodeproj/`, `CLAUDE.md`
+- 읽기만 하는 파일: `Christof/`, `ChristofKit/`, `ChristofWidget/`, `Config/`, `Christof.xcodeproj/`, `CLAUDE.md`, `docs/UX.md`
 - 앱 코드를 바꿔야 하는 일(시안을 `Rendering/` 에 옮기기 등)은 고치지 않고, 개발 세션에서 할 일로 사용자에게 알린다.
 
 ## 확인
