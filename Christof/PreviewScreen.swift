@@ -192,7 +192,7 @@ private struct SettingsPanel: View {
                     .font(.footnote)
                     .foregroundStyle(.secondary)
                 if let widgetFailures, widgetFailures.weather {
-                    Text("At \(Self.time(widgetFailures.at, language: language)), the widget couldn't load the weather, so it showed Clear.")
+                    Text("On \(Self.time(widgetFailures.at, language: language)), the widget couldn't load the weather, so it showed Clear.")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
@@ -226,8 +226,8 @@ private struct SettingsPanel: View {
         let time = Self.time(widgetFailures.at, language: language)
         let name = widgetFailures.region?.name[language] ?? widgetFailures.regionID
         return switch location {
-        case .denied: Text("At \(time), the widget had no location access, so it showed \(name).")
-        case .unavailable: Text("At \(time), the widget couldn't get your location, so it showed \(name).")
+        case .denied: Text("On \(time), the widget had no location access, so it showed \(name).")
+        case .unavailable: Text("On \(time), the widget couldn't get your location, so it showed \(name).")
         }
     }
 

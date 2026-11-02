@@ -31,36 +31,6 @@
         }
       }
     },
-    "At %@, the widget couldn't get your location, so it showed %@." : {
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "위젯이 %1$@에 위치를 받지 못해 %2$@ 장면을 그렸습니다."
-          }
-        }
-      }
-    },
-    "At %@, the widget couldn't load the weather, so it showed Clear." : {
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "위젯이 %@에 날씨를 받지 못해 맑음으로 그렸습니다."
-          }
-        }
-      }
-    },
-    "At %@, the widget had no location access, so it showed %@." : {
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "위젯이 %1$@에 위치 권한이 없어 %2$@ 장면을 그렸습니다."
-          }
-        }
-      }
-    },
     "Auto" : {
       "localizations" : {
         "ko" : {
@@ -197,6 +167,36 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "중간"
+          }
+        }
+      }
+    },
+    "On %@, the widget couldn't get your location, so it showed %@." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "위젯이 %1$@에 위치를 받지 못해 %2$@ 장면을 그렸습니다."
+          }
+        }
+      }
+    },
+    "On %@, the widget couldn't load the weather, so it showed Clear." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "위젯이 %@에 날씨를 받지 못해 맑음으로 그렸습니다."
+          }
+        }
+      }
+    },
+    "On %@, the widget had no location access, so it showed %@." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "위젯이 %1$@에 위치 권한이 없어 %2$@ 장면을 그렸습니다."
           }
         }
       }
