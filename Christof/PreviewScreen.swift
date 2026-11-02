@@ -12,6 +12,8 @@ struct PreviewScreen: View {
     @State private var autoSource: AutoRegion.Source?
     @State private var savedAt: Date?
     @State private var applyStatus: WidgetApplyStatus?
+    @State private var widgetFailures: WidgetFailures?
+    @State private var reloads = 0
     private let weather: any WeatherProviding = .standard
     #if os(macOS)
     @Environment(AppUpdater.self) private var updater: AppUpdater?
@@ -24,6 +26,7 @@ struct PreviewScreen: View {
         _saved = State(initialValue: saved)
         _settings = State(initialValue: PreviewSettings(saved: saved))
         _located = State(initialValue: store.loadLocatedRegion())
+        _widgetFailures = State(initialValue: store.loadWidgetFailures())
     }
 
     private var region: Region { settings.region ?? located }
@@ -31,10 +34,10 @@ struct PreviewScreen: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
-                SettingsPanel(settings: $settings, located: located, autoSource: autoSource, forecastStatus: forecastStatus)
-                SaveBar(hasChanges: settings.sceneSettings != saved, status: applyStatus, save: save)
+                SettingsPanel(settings: $settings, located: located, autoSource: autoSource, widgetFailures: widgetFailures, forecastStatus: forecastStatus)
+                SaveBar(hasChanges: settings.sceneSettings != saved, status: applyStatus, save: save, refresh: refresh)
                 TimelineView(.everyMinute) { timeline in
-                    // 실패는 위 상태 문구로 보여주고, 장면은 날씨 없이 그린다.
+                    // 실패는 위 상태 문구로 보여 주고, 장면은 맑음으로 그린다(SceneContextFactory).
                     let context = factory.context(now: timeline.date, region: region, realForecast: try? realForecast?.get(), settings: settings.sceneSettings)
                     WindowPreviews(context: context)
                 }
@@ -49,7 +52,7 @@ struct PreviewScreen: View {
         // 화면 문구(String Catalog)와 날짜 형식이 저장 전에도 고른 언어를 따른다.
         .environment(\.locale, settings.language.locale)
         // 위젯의 "자동" 지역은 앱을 열 때 위치로 고른다. 위치를 못 받으면 마지막에 고른 지역을 덮지 않고 그 이유를 보여 준다.
-        .task {
+        .task(id: reloads) {
             let auto = await AutoRegionResolver().resolve(fallback: located) { await DeviceLocation.current() }
             autoSource = auto.source
             Self.logger.info("자동 지역 \(auto.region.id, privacy: .public): \(String(describing: auto.source), privacy: .public)")
@@ -67,16 +70,18 @@ struct PreviewScreen: View {
             while !Task.isCancelled {
                 let status = WidgetApplyStatus(savedAt: savedAt, appliedAt: store.loadAppliedAt(), placedWidgets: placedWidgets)
                 applyStatus = status
+                widgetFailures = store.loadWidgetFailures()
                 if status != .applying { return }
                 try? await Task.sleep(for: .seconds(1))
             }
         }
-        .task(id: region) {
+        .task(id: ForecastRequest(region: region, reload: reloads)) {
             realForecast = nil
             let result: Result<WeatherForecast, any Error>
             do {
                 result = .success(try await weather.forecast(for: region))
             } catch {
+                Self.weatherLogger.error("예보 실패 \(region.id, privacy: .public): \(error.localizedDescription, privacy: .public)")
                 result = .failure(error)
             }
             // 지역이 바뀌어 취소된 요청이 새 지역의 상태를 덮지 않게 한다.
@@ -85,6 +90,12 @@ struct PreviewScreen: View {
     }
 
     private static let logger = Logger(subsystem: "com.christof.Christof", category: "location")
+    private static let weatherLogger = Logger(subsystem: "com.christof.Christof", category: "weather")
+
+    private struct ForecastRequest: Hashable {
+        let region: Region
+        let reload: Int
+    }
 
     private func save() {
         saved = settings.sceneSettings
@@ -94,20 +105,27 @@ struct PreviewScreen: View {
         WidgetCenter.shared.reloadAllTimelines()
     }
 
+    // 앱의 위치·예보를 다시 받고 위젯도 다시 그린다. 위젯이 다시 읽으면 저장할 때처럼 적용 상태와 위젯 실패를 새로 읽는다.
+    private func refresh() {
+        reloads += 1
+        savedAt = .now
+        WidgetCenter.shared.reloadAllTimelines()
+    }
+
     private var forecastStatus: Text {
         switch realForecast {
         case nil: Text("Loading the real forecast…")
         case .success(let forecast): status(of: forecast)
-        case .failure(let error): Text("Couldn't load the real forecast: \(error.localizedDescription)")
+        case .failure: Text("Couldn't load the weather, so the scene shows Clear.")
         }
     }
 
     private func status(of forecast: WeatherForecast) -> Text {
-        guard let first = forecast.samples.first, let last = forecast.samples.last else { return Text("The real forecast is empty.") }
+        guard let first = forecast.samples.first, let last = forecast.samples.last else { return Text("The real forecast is empty, so the scene shows Clear.") }
         let format = Date.FormatStyle(date: .abbreviated, time: .shortened, locale: settings.language.locale, timeZone: region.timeZone)
         let range = Text("Real forecast: \(first.time.formatted(format)) to \(last.time.formatted(format))")
         guard !settings.usesCurrentTime, forecast.sample(at: settings.customDate) == nil else { return range }
-        return range + Text(verbatim: "\n") + Text("The chosen time is outside the forecast, so the scene has no weather. Choose the weather yourself.")
+        return range + Text(verbatim: "\n") + Text("The chosen time is outside the forecast, so the scene shows Clear. Choose the weather yourself.")
     }
 }
 
@@ -115,6 +133,7 @@ private struct SettingsPanel: View {
     @Binding var settings: PreviewSettings
     let located: Region
     let autoSource: AutoRegion.Source?
+    let widgetFailures: WidgetFailures?
     let forecastStatus: Text
 
     private static let occasions = CountryRegistry.standard.profiles.flatMap(\.occasions)
@@ -139,6 +158,11 @@ private struct SettingsPanel: View {
             }
             if settings.region == nil, let reason = autoRegionReason(language: language) {
                 reason
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+            if let widgetLocation = widgetLocationFailure(language: language) {
+                widgetLocation
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
@@ -167,6 +191,11 @@ private struct SettingsPanel: View {
                 forecastStatus
                     .font(.footnote)
                     .foregroundStyle(.secondary)
+                if let widgetFailures, widgetFailures.weather {
+                    Text("At \(Self.time(widgetFailures.at, language: language)), the widget couldn't load the weather, so it showed Clear.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
             }
             LabeledContent("Event") {
                 Picker("Event", selection: $settings.occasion) {
@@ -191,17 +220,34 @@ private struct SettingsPanel: View {
         case .location, .widget, .app, nil: return nil
         }
     }
+
+    private func widgetLocationFailure(language: AppLanguage) -> Text? {
+        guard let widgetFailures, let location = widgetFailures.location else { return nil }
+        let time = Self.time(widgetFailures.at, language: language)
+        let name = widgetFailures.region?.name[language] ?? widgetFailures.regionID
+        return switch location {
+        case .denied: Text("At \(time), the widget had no location access, so it showed \(name).")
+        case .unavailable: Text("At \(time), the widget couldn't get your location, so it showed \(name).")
+        }
+    }
+
+    // 위젯이 실패한 때는 기기 시각으로 보인다. 어제 일일 수 있어 날짜도 붙인다.
+    private static func time(_ date: Date, language: AppLanguage) -> String {
+        date.formatted(Date.FormatStyle(locale: language.locale).month(.abbreviated).day().hour().minute())
+    }
 }
 
 private struct SaveBar: View {
     let hasChanges: Bool
     let status: WidgetApplyStatus?
     let save: () -> Void
+    let refresh: () -> Void
 
     var body: some View {
         HStack(spacing: 12) {
             Button("Save", action: save)
                 .buttonStyle(.borderedProminent)
+            Button("Refresh", systemImage: "arrow.clockwise", action: refresh)
             if !hasChanges, status == .applying {
                 ProgressView()
                     .controlSize(.small)

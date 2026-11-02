@@ -31,6 +31,36 @@
         }
       }
     },
+    "At %@, the widget couldn't get your location, so it showed %@." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "위젯이 %1$@에 위치를 받지 못해 %2$@ 장면을 그렸습니다."
+          }
+        }
+      }
+    },
+    "At %@, the widget couldn't load the weather, so it showed Clear." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "위젯이 %@에 날씨를 받지 못해 맑음으로 그렸습니다."
+          }
+        }
+      }
+    },
+    "At %@, the widget had no location access, so it showed %@." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "위젯이 %1$@에 위치 권한이 없어 %2$@ 장면을 그렸습니다."
+          }
+        }
+      }
+    },
     "Auto" : {
       "localizations" : {
         "ko" : {
@@ -81,12 +111,12 @@
         }
       }
     },
-    "Couldn't load the real forecast: %@" : {
+    "Couldn't load the weather, so the scene shows Clear." : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "실제 예보를 가져오지 못했습니다: %@"
+            "value" : "날씨를 받지 못해 맑음으로 그립니다."
           }
         }
       }
@@ -181,6 +211,16 @@
         }
       }
     },
+    "Refresh" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "새로 고침"
+          }
+        }
+      }
+    },
     "Region" : {
       "localizations" : {
         "ko" : {
@@ -261,22 +301,22 @@
         }
       }
     },
-    "The chosen time is outside the forecast, so the scene has no weather. Choose the weather yourself." : {
+    "The chosen time is outside the forecast, so the scene shows Clear. Choose the weather yourself." : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "지정한 시각이 예보 범위 밖이라 날씨 없이 그립니다. 날씨를 직접 고르세요."
+            "value" : "지정한 시각이 예보 범위 밖이라 맑음으로 그립니다. 날씨를 직접 고르세요."
           }
         }
       }
     },
-    "The real forecast is empty." : {
+    "The real forecast is empty, so the scene shows Clear." : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "실제 예보가 비어 있습니다."
+            "value" : "실제 예보가 비어 있어 맑음으로 그립니다."
           }
         }
       }

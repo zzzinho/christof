@@ -12,6 +12,7 @@ public struct SceneSettingsStore: Sendable {
     private static let key = "sceneSettings"
     private static let locatedRegionKey = "locatedRegionID"
     private static let appliedAtKey = "appliedAt"
+    private static let widgetFailuresKey = "widgetFailures"
 
     private let suiteName: String
 
@@ -54,5 +55,14 @@ public struct SceneSettingsStore: Sendable {
     public func markApplied(readAt date: Date) {
         if let applied = loadAppliedAt(), applied >= date { return }
         defaults.set(date, forKey: Self.appliedAtKey)
+    }
+
+    // ponytail: 위젯이 여럿이면 마지막에 리로드한 위젯의 결과만 남는다. 위젯마다 보여야 하면 위젯 id 별로 나눈다.
+    public func saveWidgetFailures(_ failures: WidgetFailures?) {
+        defaults.set(failures.flatMap { try? JSONEncoder().encode($0) }, forKey: Self.widgetFailuresKey)
+    }
+
+    public func loadWidgetFailures() -> WidgetFailures? {
+        defaults.data(forKey: Self.widgetFailuresKey).flatMap { try? JSONDecoder().decode(WidgetFailures.self, from: $0) }
     }
 }

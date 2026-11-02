@@ -59,5 +59,8 @@ final class AppUpdater: NSObject, SPUUpdaterDelegate, SPUStandardUserDriverDeleg
     nonisolated func standardUserDriverShouldHandleShowingScheduledUpdate(_ update: SUAppcastItem, andInImmediateFocus immediateFocus: Bool) -> Bool {
         false
     }
+
+    // 표시를 맡겠다고 하면 Sparkle 은 이 메서드를 요구한다(없으면 오류 로그). 설정 화면 표시는 didFindValidUpdate 가 이미 맡는다.
+    nonisolated func standardUserDriverWillHandleShowingUpdate(_ handleShowingUpdate: Bool, forUpdate update: SUAppcastItem, state: SPUUserUpdateState) {}
 }
 #endif

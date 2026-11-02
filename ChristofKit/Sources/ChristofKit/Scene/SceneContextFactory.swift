@@ -21,7 +21,8 @@ public struct SceneContextFactory: Sendable {
         return SceneContext(
             date: date,
             region: region,
-            weather: forecast?.sample(at: date),
+            // 예보를 받지 못했거나 고른 시각이 예보 밖이면 맑음으로 그린다.
+            weather: forecast?.sample(at: date) ?? .forced(.clear, at: date),
             sun: SolarCalculator.state(at: date, latitude: region.latitude, longitude: region.longitude, timeZone: region.timeZone),
             moon: MoonCalculator.state(at: date, latitude: region.latitude, longitude: region.longitude),
             season: profile?.season(at: date, in: region) ?? .meteorological(at: date, in: region),

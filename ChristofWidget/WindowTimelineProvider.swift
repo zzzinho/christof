@@ -27,10 +27,11 @@ struct WindowTimelineProvider: AppIntentTimelineProvider {
     func timeline(for configuration: SelectRegionIntent, in context: Context) async -> Timeline<WindowEntry> {
         let readAt = Date.now
         let settings = store.load()
-        let region = await region(for: configuration, settings: settings)
+        let auto = await region(for: configuration, settings: settings)
+        let region = auto.region
         defer { store.markApplied(readAt: readAt) }
         let now = Date.now
-        // 예보 실패(오프라인 등)는 날씨 없는 장면으로 그리고, 30분 뒤 다시 시도한다(하루 48회, 리로드 예산 40~70회 안).
+        // 예보 실패(오프라인 등)는 맑음으로 그리고, 30분 뒤 다시 시도한다(하루 48회, 리로드 예산 40~70회 안).
         let forecast: WeatherForecast?
         do {
             forecast = try await weather.forecast(for: region)
@@ -38,6 +39,7 @@ struct WindowTimelineProvider: AppIntentTimelineProvider {
             Self.logger.error("예보 실패 \(region.id, privacy: .public): \(error.localizedDescription, privacy: .public)")
             forecast = nil
         }
+        store.saveWidgetFailures(WidgetFailures(region: auto, weatherFailed: forecast == nil, at: now))
         // 시계 분침이 5분 눈금이라 5분 경계마다 다시 그린다.
         let step = 5.0 * 60
         let start = Date(timeIntervalSinceReferenceDate: (now.timeIntervalSinceReferenceDate / step).rounded(.down) * step)
@@ -56,13 +58,13 @@ struct WindowTimelineProvider: AppIntentTimelineProvider {
     private static let logger = Logger(subsystem: "com.christof.Christof", category: "widget")
 
     // 위젯과 앱이 모두 "자동"이면 위젯이 위치를 직접 봐서, 앱을 열지 않아도 도시를 옮기면 바뀐다. 위치를 못 보면 앱이나 위젯이 마지막에 고른 지역을 쓴다.
-    private func region(for configuration: SelectRegionIntent, settings: SceneSettings) async -> Region {
+    private func region(for configuration: SelectRegionIntent, settings: SceneSettings) async -> AutoRegion {
         let auto = await AutoRegionResolver().resolve(widget: configuration.chosenRegion, app: settings.region, fallback: store.loadLocatedRegion()) {
             await WidgetLocation.current().map(LocationReading.location) ?? .unavailable
         }
         Self.logger.info("지역 \(auto.region.id, privacy: .public): \(String(describing: auto.source), privacy: .public)")
         if auto.source == .location { store.saveLocatedRegion(auto.region) }
-        return auto.region
+        return auto
     }
 
     private func entry(at date: Date, region: Region, forecast: WeatherForecast?, settings: SceneSettings) -> WindowEntry {
