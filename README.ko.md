@@ -4,10 +4,17 @@
 
 고른 지역의 날씨·시각·명절을 창밖 풍경으로 보여 주는 macOS 위젯입니다. 창문 모양이고, 3pt 도트로 그립니다. 이름은 트루먼 쇼에서 가상 세계를 연출하는 감독 Christof에서 따왔습니다. 이 창문이 가상의 창문이라는 뜻입니다.
 
-| | |
-|---|---|
-| ![평소](docs/images/busan-everyday.png) | ![설날](docs/images/busan-seollal.png) |
-| ![할로윈](docs/images/busan-halloween.png) | ![크리스마스](docs/images/busan-christmas.png) |
+**시각** · 부산, 6월의 맑은 날: 새벽 → 일출 → 아침 → 정오 → 오후 → 일몰 → 저녁 → 늦은 밤
+
+![하루 동안 바뀌는 창](docs/images/busan-time.gif)
+
+**날씨** · 부산, 1월 오후 2시: 맑음 → 구름 조금 → 흐림 → 안개 → 이슬비 → 비 → 눈 → 뇌우
+
+![날씨에 따라 바뀌는 창](docs/images/busan-weather.gif)
+
+**이벤트** · 새해 첫날 → 설날 → 정월대보름 → 부처님오신날 → 추석 → 할로윈 → 크리스마스 이브 → 크리스마스
+
+![명절에 따라 바뀌는 창](docs/images/busan-events.gif)
 
 ## 보여 주는 것
 

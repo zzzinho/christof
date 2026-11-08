@@ -4,10 +4,17 @@ English | [한국어](README.ko.md)
 
 A macOS widget that shows the weather, time, and holidays of a place you choose as the view outside a window. It is drawn in 3pt pixel dots. The name comes from Christof, the director who stages the fake world in The Truman Show: this is a virtual window.
 
-| | |
-|---|---|
-| ![Everyday](docs/images/busan-everyday.png) | ![Seollal](docs/images/busan-seollal.png) |
-| ![Halloween](docs/images/busan-halloween.png) | ![Christmas](docs/images/busan-christmas.png) |
+**Time** · Busan, a clear day in June: before dawn → sunrise → morning → noon → afternoon → sunset → evening → late night
+
+![How the window changes through a day](docs/images/busan-time.gif)
+
+**Weather** · Busan, 2 p.m. in January: clear → partly cloudy → overcast → fog → drizzle → rain → snow → thunderstorm
+
+![How the window changes with the weather](docs/images/busan-weather.gif)
+
+**Events** · New Year's Day → Seollal → Jeongwol Daeboreum → Buddha's Birthday → Chuseok → Halloween → Christmas Eve → Christmas
+
+![How the window changes with holidays](docs/images/busan-events.gif)
 
 ## What it shows
 
