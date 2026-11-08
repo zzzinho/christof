@@ -267,6 +267,44 @@
   --lofi-pajama-dark: #71685E;
   --lofi-pajama-rim: #B0A493;
   --lofi-santa-dark: #86393E;
+
+  /* 헤네시스 테마 (03-henesys). 주황버섯은 때와 관계없이 같은 색이고(갓 그늘 pot, 몸통 santa-trim, 테두리 빛 cheese-rim),
+     창밖 몬스터(뿔버섯, 초록버섯)는 낮에만 나와서 한 벌이다.
+     마을(산맥, 풀밭, 버섯집 갓 주황·노랑·빨강, 크림색 벽)은 때마다 바뀐다. 언덕은 mountain, 문·꺼진 창은 city 를 쓴다. */
+  --lofi-mushroom: #D57A36;
+  --lofi-mushroom-spot: #E6BC50;
+  --lofi-horny: #6F90B6;
+  --lofi-horny-dark: #4E6C92;
+  --lofi-green-cap: #8EAE70;
+  --lofi-green-cap-dark: #6B8B56;
+  --lofi-night-meadow: #232A3A;
+  --lofi-night-cap-1: #4F3645;
+  --lofi-night-cap-2: #4D4447;
+  --lofi-night-cottage: #3A3B52;
+  --lofi-night-peak: #353B5E;
+  --lofi-night-peak-dark: #2B3050;
+  --lofi-night-cap-3: #4E3040;
+  --lofi-dusk-meadow: #4A4C5E;
+  --lofi-dusk-cap-1: #9A5650;
+  --lofi-dusk-cap-2: #A07858;
+  --lofi-dusk-cottage: #8A7484;
+  --lofi-dusk-peak: #6E5E84;
+  --lofi-dusk-peak-dark: #5A4C6E;
+  --lofi-dusk-cap-3: #93464A;
+  --lofi-day-meadow: #78AE5C;
+  --lofi-day-cap-1: #E07E3C;
+  --lofi-day-cap-2: #E2B04C;
+  --lofi-day-cottage: #E8DEC8;
+  --lofi-day-peak: #7EC4CF;
+  --lofi-day-peak-dark: #5FA6B6;
+  --lofi-day-cap-3: #C9483E;
+  --lofi-grey-meadow: #5C6A60;
+  --lofi-grey-cap-1: #8E6A5E;
+  --lofi-grey-cap-2: #928266;
+  --lofi-grey-cottage: #A09E9A;
+  --lofi-grey-peak: #7A808C;
+  --lofi-grey-peak-dark: #6A707C;
+  --lofi-grey-cap-3: #86605C;
 }
 
 body {
