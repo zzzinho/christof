@@ -3,7 +3,7 @@
 public enum SceneComposer {
     public static func grid(for context: SceneContext, cols: Int, rows: Int) -> DotGrid {
         let s = DotScene(context)
-        let L = RoomLayout(cols: cols, rows: rows, tree: s.looks.room.contains { $0.spot == .lamp })
+        let L = RoomLayout(cols: cols, rows: rows, tree: s.looks.room.contains { $0.spot == .lamp }, pets: s.theme.pets)
         let cat = L.catSpot(s.catState)
         var g = DotGrid(cols: cols, rows: rows)
         WallPainter.draw(&g, L, s)

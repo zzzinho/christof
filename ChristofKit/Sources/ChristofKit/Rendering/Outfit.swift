@@ -6,6 +6,8 @@ struct Outfit: Sendable {
     var rim = "hoodie-rim"
     var skirt = "curtain-dark"
     var paint: (@Sendable (Character, Int, Int, String) -> String?)?
+    /// 등에 멘 것. 사람 스프라이트 왼쪽 위 칸을 받는다. 머리가 길어도 보이게 머리 위에 얹는다.
+    var back: (@Sendable (inout DotGrid, Int, Int) -> Void)?
 
     func color(_ ch: Character, _ i: Int, _ k: Int, _ row: String) -> String? {
         switch ch {
@@ -36,6 +38,12 @@ struct Outfit: Sendable {
     /// 크리스마스 노르딕 니트
     static let christmas = Outfit(base: "santa", shade: "santa-dark", rim: "pouch-light") { _, i, k, _ in
         k == 3 || k == 5 ? "santa-trim" : k == 4 ? (i % 2 == 1 ? "summer-2" : "santa-trim") : nil
+    }
+
+    /// 헤네시스 평소 옷: 궁수 마을이라 초록 궁수 튜닉. 등 위쪽 그늘(d)이 내려놓은 후드로 읽히고, 허리에 가죽 띠를 맨다.
+    /// 뒷모습이라 옷만으로는 궁수로 읽히지 않아 오른쪽 어깨에 화살통을 멘다. 화살깃이 머리 오른쪽으로 솟는다.
+    static let bowman = Outfit(base: "summer-1", shade: "summer-2", rim: "leaf-new", paint: { _, _, k, _ in k == 6 ? "pot" : nil }) { g, left, top in
+        g.sprite(left + 11, top + 22, Sprites.quiver, ["a": "hanbok-collar", "q": "wood-light", "Q": "pot"])
     }
 
     private static let saekdong = ["pouch", "pouch-gold", "summer-1", "pouch-knot", "hanbok"]

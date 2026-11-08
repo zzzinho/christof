@@ -1,7 +1,7 @@
 /// 치즈 고양이. 상태(창밖 보기, 잠, 걷기, 쓰다듬기, 어깨 위)마다 자세와 자리가 다르다.
 enum CatPainter {
     static func draw(_ g: inout DotGrid, _ s: DotScene, _ spot: CatSpot) {
-        g.sprite(spot.x, spot.bottom, spot.pose.rows, Sprites.colors(lightOn: s.lightOn))
+        g.sprite(spot.x, spot.bottom, spot.pose.rows, s.theme.pets.colors(lightOn: s.lightOn))
         // 그릇은 고양이 다음에 그려 숙인 입을 가린다.
         if let bowl = spot.bowl { g.sprite(bowl.x, bowl.y, [".fff.", "BBBBB"], ["f": "autumn-2", "B": "beanie"]) }
         for look in s.looks.cat { look.draw(&g, spot, s) }

@@ -21,7 +21,7 @@ struct WindowTimelineProvider: AppIntentTimelineProvider {
     func snapshot(for configuration: SelectRegionIntent, in context: Context) async -> WindowEntry {
         let settings = store.load()
         let region = await AutoRegionResolver().resolve(widget: configuration.chosenRegion, app: settings.region, fallback: store.loadLocatedRegion()) { .unavailable }.region
-        return entry(at: .now, region: region, forecast: nil, settings: settings)
+        return entry(at: .now, region: region, forecast: nil, settings: settings, theme: configuration.chosenTheme)
     }
 
     func timeline(for configuration: SelectRegionIntent, in context: Context) async -> Timeline<WindowEntry> {
@@ -49,7 +49,7 @@ struct WindowTimelineProvider: AppIntentTimelineProvider {
         // 약 65KB 라, 1분 간격 180개(약 11MB)는 거부되고 36개(약 2.4MB)는 받아들여졌다. 한도 값은 공개되어 있지 않다.
         let count = settings.fixedDate == nil ? 36 : 1
         let entries = (0..<count).map { i in
-            entry(at: start.addingTimeInterval(Double(i) * step), region: region, forecast: forecast, settings: settings)
+            entry(at: start.addingTimeInterval(Double(i) * step), region: region, forecast: forecast, settings: settings, theme: configuration.chosenTheme)
         }
         let policy: TimelineReloadPolicy = .after(now.addingTimeInterval((forecast == nil ? 30 : 60) * 60))
         return Timeline(entries: entries, policy: policy)
@@ -67,7 +67,7 @@ struct WindowTimelineProvider: AppIntentTimelineProvider {
         return auto
     }
 
-    private func entry(at date: Date, region: Region, forecast: WeatherForecast?, settings: SceneSettings) -> WindowEntry {
-        WindowEntry(date: date, context: factory.context(now: date, region: region, realForecast: forecast, settings: settings), language: settings.language)
+    private func entry(at date: Date, region: Region, forecast: WeatherForecast?, settings: SceneSettings, theme: Theme? = nil) -> WindowEntry {
+        WindowEntry(date: date, context: factory.context(now: date, region: region, realForecast: forecast, settings: settings, widgetTheme: theme), language: settings.language)
     }
 }

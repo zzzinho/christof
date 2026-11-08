@@ -83,6 +83,7 @@ enum PersonPainter {
         }
         // 목에 건 귀덮개는 늘어진 머리 위에 걸친다.
         if s.headwear == .neck { g.sprite(L.personX, top + p.neckBottom, p.neck, lit) }
+        s.outfit.back?(&g, left, top)
         for look in s.looks.person { look.draw(&g, L.personX, top, s) }
     }
 }

@@ -4,12 +4,7 @@ struct StreetTreeEffect: OutsideEffect {
     func draw(_ g: inout DotGrid, _ w: Int, _ h: Int, _ s: DotScene) {
         var random = SeededRandom(seed: 13)
         let dark = s.phase == .night || s.phase == .dusk
-        let crowns: [String]? = switch s.season {
-        case .spring: ["leaf-new", "leaf-new-dark"]
-        case .summer: ["summer-1", "summer-2"]
-        case .autumn: ["ginkgo", "autumn-3", "autumn-1"]
-        case .winter: nil
-        }
+        let crowns = Self.crowns(s.season)
         let bark = dark ? s.color("city") : LofiPalette.color("branch")
         var x = random(1...4), i = 0
         while x < Double(w + 4) {
@@ -37,6 +32,16 @@ struct StreetTreeEffect: OutsideEffect {
                 let top = h - 2 - (random(0...1) < 0.5 ? 1 : 0)
                 g.rect(x, top, 1, h - top, dark ? s.color("city") : LofiPalette.color("forsythia"))
             }
+        }
+    }
+
+    /// 잎 색 [기본, 그늘, 셋째마다]. 겨울은 잎이 없다.
+    static func crowns(_ season: Season) -> [String]? {
+        switch season {
+        case .spring: ["leaf-new", "leaf-new-dark"]
+        case .summer: ["summer-1", "summer-2"]
+        case .autumn: ["ginkgo", "autumn-3", "autumn-1"]
+        case .winter: nil
         }
     }
 }

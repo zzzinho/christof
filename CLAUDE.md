@@ -7,6 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 macOS·iOS용 위젯. 위젯은 창문 모양이고, 사용자가 고른 지역의 날씨·시간·이벤트를 창밖 풍경으로 보여준다. 이름은 트루먼 쇼에서 가상 세계를 연출하는 감독 Christof에서 따왔다. 이 창문이 가상의 창문이라는 뜻이다.
 
 - 사용자가 지역을 앱에서 골라 저장하면 위젯에 반영된다. 위젯마다 다르게 하려면 위젯 편집에서 고르고, 그 값이 앱 설정보다 먼저다. 둘 다 "자동"이면 위치로 고른 지역을 쓴다(서울 안이면 서울, 그 밖이거나 위치를 모르면 부산). 앱은 열 때, 위젯은 리로드할 때 위치를 보고, 위젯이 위치를 못 보면 앱이 마지막에 고른 지역을 쓴다. 로그인·계정은 없고, 사용자 로그인이 필요한 기능이나 서비스는 들이지 않는다.
+- 디자인(테마): 지역과 따로 고르는 그림 세계(`Theme`: 기본, 헤네시스). 창밖 마을·창틀·고양이 자리 동물·평소 옷만 바꾸고, 날씨·시각·해달·이벤트 판정과 이벤트 모양은 지역 기준 그대로다. 앱 설정과 위젯 편집에서 고르고 위젯 편집이 먼저다.
 - 날씨: Open-Meteo (API 키 없음). WeatherKit은 유료 개발자 계정이 필요해서 쓰지 않는다.
 - 이벤트: 해당 국가의 명절·기념일(설날, 추석, 크리스마스, 할로윈 등)과 해·달 이벤트(일출·일몰·보름달). 캘린더 일정 같은 개인 데이터는 다루지 않는다. 한국부터 만든다.
 - 언어: 기본은 영어이고 앱 설정에서 한국어를 고른다(`SceneSettings.language`, 위젯 VoiceOver 도 따른다). 화면 문구는 앱·위젯의 `Localizable.xcstrings`(영어 원문, 한국어 번역)에, 지역·이벤트·날씨 이름은 `LocalizedName` 으로 데이터에 둔다. 위젯 갤러리·위젯 편집 문구는 시스템 언어를 따른다.
@@ -85,6 +86,6 @@ macOS·iOS용 위젯. 위젯은 창문 모양이고, 사용자가 고른 지역�
   - 그리기는 시안(`design/00-base.html`)의 JS 를 같은 이름·순서로 옮긴 것이다. 반올림·hypot·난수도 JS 와 같게 계산해서 같은 칸이 나온다.
   - `Occasions/`: 이벤트 모델과 날짜 규칙 타입. 음력 명절은 `Calendar(identifier: .dangi)` 로 계산한다.
   - `Countries/`: 국가 프로필과 레지스트리. 국가와 무관한 하늘 이벤트는 `CelestialOccasions`.
-  - `Rendering/Components`: 구성 요소(벽, 시계, 창문, 고양이, 방 안, 사람). `Rendering/Layers`: 창밖 효과. `Rendering/Looks`: 구성 요소별 이벤트 모양(시안의 `*_LOOKS`). `LofiPalette` 는 design.css 의 `--lofi-*` 색이다.
+  - `Rendering/Components`: 구성 요소(벽, 시계, 창문, 고양이, 방 안, 사람). `Rendering/Layers`: 창밖 효과. `Rendering/Looks`: 구성 요소별 이벤트 모양(시안의 `*_LOOKS`). `LofiPalette` 는 design.css 의 `--lofi-*` 색이다. `Rendering/Themes`: 테마(시안의 `THEMES`)와 테마별 창밖·창틀·동물.
 - `Christof/`: 컨테이너 앱. `ChristofWidget/`: 위젯 익스텐션. 둘 다 iOS·macOS 멀티플랫폼 타깃이다.
 - `design/`(`DESIGN.md`, `design.css`, `*.html`): hunsu(`design/` 에서 `hunsu` 실행)로 만드는 위젯 시안. 디자인 세션이 고치고, 고른 시안은 개발 세션이 `Rendering/` 에 옮긴다.

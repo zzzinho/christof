@@ -54,6 +54,9 @@ struct DotScene {
     let outfit: Outfit
     let looks: OccasionLooks
     let farView: any FarView
+    let theme: Theme
+    /// 시각마다 바뀌는 시드. 같은 날 같은 시각이면 늘 같다.
+    let seed: UInt64
 
     var lightOn: Bool { phase != .day }
 
@@ -83,15 +86,17 @@ struct DotScene {
         if season == .winter, !looks.cat.contains(where: { $0 is CatScarf }) { looks.cat.append(CatScarf.winter) }
         self.looks = looks
         farView = context.region.looks.far
+        theme = context.theme
+        seed = UInt64((month * 100 + day) * 100 + hour)
         // 같은 날 같은 시각이면 늘 같은 모습이고, 한 시간마다 바뀐다. 순간이 덮어도 뽑는 순서(헤드폰 → 고양이)는 같다.
-        var random = SeededRandom(seed: UInt64((month * 100 + day) * 100 + hour))
+        var random = SeededRandom(seed: seed)
         headwear = Headwear.allCases[random.int(0, Headwear.allCases.count - 1)]
         let cats = Interaction.at(hour: hour).cats, picked = cats[random.int(0, cats.count - 1)]
         let moment = context.occasions.lazy.compactMap(\.looks.moment).first { [hour] in $0.hours.contains(hour) }
         catState = moment?.cat ?? picked
         // 봄(3월 1일)에 턱선 단발로 자르고 겨울 끝(2월 말)까지 자란다.
         hair = (Double((month + 9) % 12) + Double(day - 1) / 31) / 12
-        outfit = looks.outfit ?? .pajama
+        outfit = looks.outfit ?? theme.outfit
     }
 
     /// 때마다 다른 색

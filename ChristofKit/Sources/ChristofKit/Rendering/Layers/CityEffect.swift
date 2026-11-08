@@ -37,3 +37,12 @@ struct CityEffect {
         g.sprite(at.x, at.y, [".X.", "XXX", ".X.", ".X."], ["X": "bulb-1"])
     }
 }
+
+/// 기본 테마 창밖: 한국 도시와 가로수, 밤의 교회 십자가
+struct KoreanTownEffect: OutsideEffect {
+    func draw(_ g: inout DotGrid, _ w: Int, _ h: Int, _ s: DotScene) {
+        let cross = CityEffect().draw(&g, w, h, s)
+        StreetTreeEffect().draw(&g, w, h, s)
+        if let cross { CityEffect.drawCross(&g, cross) }
+    }
+}

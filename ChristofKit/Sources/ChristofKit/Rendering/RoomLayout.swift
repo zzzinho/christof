@@ -18,8 +18,10 @@ struct RoomLayout {
     let view: (x: Int, y: Int, w: Int, h: Int)
     /// 벽을 데우는 불빛 중심
     let light: (x: Double, y: Double)
+    let pets: Pets
 
-    init(cols W: Int, rows H: Int, tree: Bool) {
+    init(cols W: Int, rows H: Int, tree: Bool, pets: Pets = .cat) {
+        self.pets = pets
         let wide = W > H
         self.W = W
         self.H = H
@@ -51,17 +53,17 @@ struct RoomLayout {
 
     func catSpot(_ state: DotScene.CatState) -> CatSpot {
         switch state {
-        case .window: CatSpot(pose: .back, x: cat.x, bottom: sill, item: (cat.x + 9, sill))
-        case .sleep: CatSpot(pose: .curled, x: x0 + 10, bottom: sill, item: (x0 + 20, sill))
-        case .walk: CatSpot(pose: .walk, x: x0 + 12, bottom: sill, item: (x0 + 23, sill))
+        case .window: CatSpot(pose: pets.back, x: cat.x, bottom: sill, item: (cat.x + 9, sill))
+        case .sleep: CatSpot(pose: pets.curled, x: x0 + 10, bottom: sill, item: (x0 + 20, sill))
+        case .walk: CatSpot(pose: pets.walk, x: x0 + 12, bottom: sill, item: (x0 + 23, sill))
         case .pet:
-            CatSpot(pose: .side, x: personX - 15, bottom: deskTop + 1, item: (personX - 24, deskTop + 1), front: true,
+            CatSpot(pose: pets.side, x: personX - 15, bottom: deskTop + 1, item: (personX - 24, deskTop + 1), front: true,
                     arm: ((personX - 6, personTop + 15), (personX - 12, deskTop - 10)))
-        case .shoulder: CatSpot(pose: .curled, x: personX + 1, bottom: personTop + 18, item: (cat.x, sill), front: true)
-        case .beside: CatSpot(pose: .back, x: personX - 14, bottom: deskTop + 1, item: (personX - 24, deskTop + 1), front: true)
+        case .shoulder: CatSpot(pose: pets.curled, x: personX + 1, bottom: personTop + 18, item: (cat.x, sill), front: true)
+        case .beside: CatSpot(pose: pets.back, x: personX - 14, bottom: deskTop + 1, item: (personX - 24, deskTop + 1), front: true)
         // small 은 고양이 왼쪽에 자리가 없어 물건을 창턱에 둔다.
         case .eat:
-            CatSpot(pose: .eat, x: personX - 28, bottom: deskTop + 1, item: (cat.x, sill), front: true,
+            CatSpot(pose: pets.eat, x: personX - 28, bottom: deskTop + 1, item: (cat.x, sill), front: true,
                     bowl: (personX - 20, deskTop + 1), dish: personX - 13)
         }
     }

@@ -166,6 +166,12 @@ private struct SettingsPanel: View {
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
+            LabeledContent("Design") {
+                Picker("Design", selection: $settings.theme) {
+                    ForEach(Theme.all) { Text($0.name[language]).tag($0) }
+                }
+                .labelsHidden()
+            }
             LabeledContent("Time") {
                 Picker("Time", selection: $settings.usesCurrentTime) {
                     Text("Auto").tag(true)
@@ -260,7 +266,7 @@ private struct SaveBar: View {
 
     private var message: Text {
         if hasChanges {
-            return Text("Save to apply these settings to the widget. A widget given its own region in Edit Widget keeps that region.")
+            return Text("Save to apply these settings to the widget. A widget given its own region or design in Edit Widget keeps it.")
         }
         switch status {
         case .applying: return Text("Applying to the widget…")
@@ -350,12 +356,12 @@ private struct WidgetGuide: View {
                 .font(.headline)
             #if os(macOS)
             Text("Right-click the desktop → Edit Widgets → find Christof and place it on the desktop.")
-            Text("To give one widget its own region, right-click it → Edit Widget.")
+            Text("To give one widget its own region or design, right-click it → Edit Widget.")
             #else
             Text("Touch and hold the Home Screen → Edit → Add Widget → choose Christof.")
-            Text("To give one widget its own region, touch and hold it → Edit Widget.")
+            Text("To give one widget its own region or design, touch and hold it → Edit Widget.")
             #endif
-            Text("Selecting the widget opens this app. Change the region, language, time, weather, or event here and save to apply them to the widget.")
+            Text("Selecting the widget opens this app. Change the region, design, language, time, weather, or event here and save to apply them to the widget.")
             Text("Version \(Self.info("CFBundleShortVersionString")) (\(Self.info("CFBundleVersion")))")
                 .foregroundStyle(.secondary)
         }
