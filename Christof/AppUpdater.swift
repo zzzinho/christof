@@ -8,8 +8,12 @@ import SwiftUI
 final class AppUpdater: NSObject, SPUUpdaterDelegate, SPUStandardUserDriverDelegate {
     private(set) var availableVersion: String?
     private(set) var checked = false
+    private(set) var downloaded = false
     var installsAutomatically = false {
-        didSet { controller.updater.automaticallyDownloadsUpdates = installsAutomatically }
+        didSet {
+            controller.updater.automaticallyDownloadsUpdates = installsAutomatically
+            if installsAutomatically, notice.downloadsWhenAutomaticInstallTurnsOn { controller.updater.checkForUpdatesInBackground() }
+        }
     }
     @ObservationIgnored private var installNow: (() -> Void)?
     @ObservationIgnored private var controller: SPUStandardUpdaterController!
@@ -19,11 +23,17 @@ final class AppUpdater: NSObject, SPUUpdaterDelegate, SPUStandardUserDriverDeleg
         controller = SPUStandardUpdaterController(startingUpdater: true, updaterDelegate: self, userDriverDelegate: self)
         installsAutomatically = controller.updater.automaticallyDownloadsUpdates
         // 앱은 위젯을 눌러 열 때만 떠 있어, 하루 주기 검사를 기다리지 않고 열 때마다 확인한다.
-        controller.updater.checkForUpdatesInBackground()
+        // 수동 설치면 정보만 묻는다. 백그라운드 확인은 찾은 업데이트를 보여 주는 세션을 열어 둔 채 기다리고,
+        // 세션이 열려 있으면 Sparkle 은 다음 백그라운드 확인을 무시해서 나중에 자동 설치를 켜도 받기를 시작하지 못한다.
+        if installsAutomatically {
+            controller.updater.checkForUpdatesInBackground()
+        } else {
+            controller.updater.checkForUpdateInformation()
+        }
     }
 
     var notice: UpdateNotice {
-        UpdateNotice(checked: checked, newVersion: availableVersion, installsAutomatically: installsAutomatically)
+        UpdateNotice(checked: checked, newVersion: availableVersion, downloaded: downloaded)
     }
 
     /// 자동 설치로 이미 받아 두었으면 바로 설치하고, 아니면 Sparkle 의 설치 창을 띄운다.
@@ -49,7 +59,10 @@ final class AppUpdater: NSObject, SPUUpdaterDelegate, SPUStandardUserDriverDeleg
     // 자동 설치는 받아 둔 업데이트를 앱이 끝날 때(창을 닫을 때) 설치한다. 그 전에 버튼으로 바로 설치할 수 있게 남겨 둔다.
     nonisolated func updater(_ updater: SPUUpdater, willInstallUpdateOnQuit item: SUAppcastItem, immediateInstallationBlock: @escaping () -> Void) -> Bool {
         nonisolated(unsafe) let install = immediateInstallationBlock
-        MainActor.assumeIsolated { installNow = install }
+        MainActor.assumeIsolated {
+            installNow = install
+            downloaded = true
+        }
         return true
     }
 
