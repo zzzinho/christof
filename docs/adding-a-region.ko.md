@@ -8,10 +8,10 @@
 
 ## 1. 먼 풍경 디자인
 
-시안은 [`design/`](../design/) 폴더에 있습니다. 그 폴더에서 [hunsu](https://github.com/zzzinho/hunsu)를 실행해 엽니다.
+시안은 [`design/`](../design/) 폴더에 있습니다. 평범한 HTML 이라 그 폴더에서 아무 정적 서버(예: `python3 -m http.server`, [hunsu](https://github.com/zzzinho/hunsu))로 엽니다.
 
 1. `design/00-base.html` 의 `FAR_VIEWS` 에 그리는 함수를 하나 더하고, `REGION_VIEWS` 에 지역의 한국어 이름과 그 함수를 잇습니다. `REGION_VIEWS` 에 없는 지역은 기본 풍경(뒷산과 아파트 단지)으로 그려집니다.
-2. `design/01-busan.html` 을 `design/NN-<지역>.html` 로 복사하고 `REGION`(이름과 디자인 의도)만 바꿉니다. 이 페이지는 그리기 코드를 `00-base.html` 에서 받아 오므로, 파일로 열지 말고 hunsu 로 엽니다.
+2. `design/01-busan.html` 을 `design/NN-<지역>.html` 로 복사하고 `REGION`(이름과 디자인 의도)만 바꿉니다. 이 페이지는 그리기 코드를 `00-base.html` 에서 받아 오므로, 파일로 열지 말고 서버로 엽니다.
 3. `design/DESIGN.md` 의 "지역별 먼 풍경" 표에 한 줄을 더합니다. 어떤 랜드마크를 왜 골랐는지 적습니다. 랜드마크는 지역마다 하나만 그립니다. 위젯이 작아서 둘을 넣으면 둘 다 알아보기 어렵습니다.
 
 ## 2. 앱으로 옮기기

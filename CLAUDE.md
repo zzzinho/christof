@@ -17,6 +17,7 @@ macOS·iOS용 위젯. 위젯은 창문 모양이고, 사용자가 고른 지역�
 - 패키지 테스트: `swift test --package-path ChristofKit`
 - 일부 테스트만: `swift test --package-path ChristofKit --filter <테스트 파일 이름 또는 함수 이름>` (예: `--filter OccasionTests`)
 - 장면 스냅샷 PNG: `swift run --package-path ChristofKit ChristofSnapshots <출력 폴더>`. 실제 지역·날짜를 `SceneContextFactory` 에 넣고 날씨만 가짜로 준다. 그리기를 바꾸면 PNG를 직접 열어 확인한다.
+- 앱 아이콘·README GIF: `swift run --package-path ChristofKit ChristofAssets`(레포 루트에서). 앱과 같은 그리기 코드로 `Christof/AppIcon.icon/Assets/scene.png` 와 `docs/images/*.gif` 를 다시 쓴다. 시안(`design/`)은 읽지 않는다. 그리기를 바꿨으면 다시 만들어 함께 커밋한다.
 - 시안과 칸 단위 비교: 스냅샷을 뽑은 뒤 `node ChristofKit/Scripts/compare-design.mjs <출력 폴더> <시안 html>`. 스냅샷 도구가 함께 쓴 격자(`.grid`)와 장면 입력(`scenes.json`)을 시안의 그리기 JS 로 다시 그려 견주고, 시안 옆 `design.css` 의 `--lofi-*` 색과 `LofiPalette` 도 견준다. 그리기를 옮기거나 고치면 팔레트와 모든 격자가 같아야 한다. 코드는 시안 위치를 들고 있지 않는다. 시안 경로는 디자인 세션이 넘길 때 알린다(지금은 `design/00-base.html`).
 - 앱·위젯 빌드: `xcodebuild -project Christof.xcodeproj -scheme Christof -destination 'generic/platform=iOS Simulator' build`, macOS는 `-destination 'platform=macOS'`. 개발 팀 없이 Sign to Run Locally로 서명하므로 서명 옵션을 덮어쓰지 않는다.
 - 시뮬레이터: 이 Mac에는 iOS 26.5 런타임만 있다(배포 타깃 26.0).

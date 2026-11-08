@@ -8,10 +8,10 @@ Each region has one landmark in the distance outside the window. Everything else
 
 ## 1. Design the far view
 
-The design files are in [`design/`](../design/). Run [hunsu](https://github.com/zzzinho/hunsu) in that folder to open them.
+The design files are in [`design/`](../design/). They are plain HTML. Open them through any static server run in that folder, for example `python3 -m http.server` or [hunsu](https://github.com/zzzinho/hunsu).
 
 1. In `design/00-base.html`, add a drawing function to `FAR_VIEWS`, and map the region's Korean name to it in `REGION_VIEWS`. A region that is not in `REGION_VIEWS` gets the default view: a ridge with apartment blocks.
-2. Copy `design/01-busan.html` to `design/NN-<region>.html` and change only `REGION` (the name and the design intents). The page fetches the drawing code from `00-base.html`, so open it through hunsu, not as a file.
+2. Copy `design/01-busan.html` to `design/NN-<region>.html` and change only `REGION` (the name and the design intents). The page fetches the drawing code from `00-base.html`, so open it through the server, not as a file.
 3. In `design/DESIGN.md`, add a row to the table of regional far views (지역별 먼 풍경): what the landmark is and why it was chosen. Draw only one landmark per region. The widget is small, and two landmarks are both lost.
 
 ## 2. Port it to the app

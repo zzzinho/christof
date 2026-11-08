@@ -10,6 +10,7 @@ let package = Package(
     targets: [
         .target(name: "ChristofKit"),
         .executableTarget(name: "ChristofSnapshots", dependencies: ["ChristofKit"]),
+        .executableTarget(name: "ChristofAssets", dependencies: ["ChristofKit"]),
         .testTarget(name: "ChristofKitTests", dependencies: ["ChristofKit"]),
     ]
 )
