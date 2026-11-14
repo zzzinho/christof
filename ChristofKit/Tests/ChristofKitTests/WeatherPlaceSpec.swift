@@ -8,7 +8,7 @@ private let seoul = registry.region(id: "KR.seoul")!
 private let busan = registry.region(id: "KR.busan")!
 private let henesys = registry.region(id: "KR.henesys")!
 private let daejeon = CLLocation(latitude: 36.3504, longitude: 127.3845)
-private let resolver = AutoRegionResolver(timeout: .milliseconds(50)) { registry.region(at: $0) }
+private let resolver = AutoRegionResolver(timeout: .milliseconds(50)) { RegionGeocoder.region(at: $0, address: nil, registry: registry) }
 
 @Suite("날씨는 내 위치에서")
 struct WeatherPlaceSpec {
@@ -39,7 +39,7 @@ struct WeatherPlaceSpec {
     func widgetFailure() throws {
         let failures = try #require(WidgetFailures(region: AutoRegion(region: henesys, source: .widget, weather: .unavailable(busan)), weatherFailed: false, at: .now))
         #expect(failures.location == .unavailable)
-        #expect(failures.region == busan)
+        #expect(failures.regionName == busan.name)
         #expect(!failures.drewFallbackRegion)
     }
 }

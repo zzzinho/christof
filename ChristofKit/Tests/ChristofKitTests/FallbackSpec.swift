@@ -32,7 +32,7 @@ struct FallbackSpec {
     func locationDenied() throws {
         let failures = try #require(WidgetFailures(region: AutoRegion(region: busan, source: .denied, weather: .denied(busan)), weatherFailed: false, at: now))
         #expect(failures.location == .denied)
-        #expect(failures.region == busan)
+        #expect(failures.regionName == busan.name)
         #expect(failures.drewFallbackRegion)
         #expect(!failures.weather)
     }

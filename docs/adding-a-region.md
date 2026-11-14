@@ -28,9 +28,9 @@ The drawing code in `ChristofKit` is a port of the design's JavaScript, with the
    - The id (`KR.daegu`) is saved in widget settings. Do not change it after a release.
    - The Korean name must match the key in `REGION_VIEWS`. The design comparison uses it to pick the far view.
    - The coordinates are the city center. The sun and moon are computed for this point. Weather always comes from the device's location, whatever region is chosen; when the location cannot be read, it comes from the region last picked by location. The current regions use the center point from [Open-Meteo geocoding](https://open-meteo.com/en/docs/geocoding-api).
-   - When a widget's region is Auto, the app and the widget look up the city of the device's location with Apple's reverse geocoding, in English, and pick the region with that English name. So the English name must be the city name that Apple Maps uses. Outside every region, they use the default region.
+   - When a widget's region is Auto, the app and the widget look up the city of the device's location with Apple's reverse geocoding, in English, and pick the region with that English name. So the English name must be the city name that Apple Maps uses. Outside every region, Auto draws the device's own location with the default far view.
    - `radius` is the rough distance in meters from the center to the city boundary. It is used only when reverse geocoding fails, for example offline.
-   - The first region in the list is the default region.
+   - The first region in the list is the default region. Auto uses it only when it has never received the device's location.
 
 The widget's region list and the app's region picker read the regions from `CountryRegistry`, so no other code changes.
 

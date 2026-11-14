@@ -80,26 +80,25 @@ func koreaOccasionIDs() {
     #expect(ids.allSatisfy { $0.hasPrefix("KR.") })
 }
 
-@Test("서울 안이면 서울, 그 밖이나 위치를 모르면 부산이다", arguments: [
+@Test("서울·부산 반지름 원 안이면 그 도시이고, 밖이면 목록에 없다", arguments: [
     (37.566, 126.978, "KR.seoul"),   // 서울시청
     (37.498, 127.028, "KR.seoul"),   // 강남역
     (37.654, 127.056, "KR.seoul"),   // 노원
     (35.163, 129.164, "KR.busan"),   // 해운대
-    (36.351, 127.385, "KR.busan"),   // 대전
-    (37.263, 127.029, "KR.busan"),   // 수원
-    (40.713, -74.006, "KR.busan"),   // 뉴욕
-])
-func regionAtLocation(_ latitude: Double, _ longitude: Double, _ expected: String) {
-    #expect(CountryRegistry.standard.region(at: CLLocation(latitude: latitude, longitude: longitude)).id == expected)
-    #expect(CountryRegistry.standard.region(at: nil).id == "KR.busan")
+    (36.351, 127.385, nil),   // 대전
+    (37.263, 127.029, nil),   // 수원
+    (40.713, -74.006, nil),   // 뉴욕
+] as [(Double, Double, String?)])
+func regionAtLocation(_ latitude: Double, _ longitude: Double, _ expected: String?) {
+    #expect(CountryRegistry.standard.region(at: CLLocation(latitude: latitude, longitude: longitude))?.id == expected)
 }
 
-@Test("역지오코딩한 도시가 서울이면 서울, 부산(구·군 포함)이면 부산, 그 밖은 기본 지역이다", arguments: [
+@Test("역지오코딩한 도시가 서울이면 서울, 부산(구·군 포함)이면 부산이고, 그 밖은 목록에 없다", arguments: [
     (["Seoul"], "KR.seoul"),
     (["Gijang-gun", "Busan"], "KR.busan"),
-    (["Seongnam-si", "Gyeonggi-do"], "KR.busan"),
-    (["Daejeon"], "KR.busan"),
-])
-func regionInGeocodedCities(_ cities: [String], _ expected: String) {
-    #expect(CountryRegistry.standard.region(inCities: cities).id == expected)
+    (["Seongnam-si", "Gyeonggi-do"], nil),
+    (["Daejeon"], nil),
+] as [([String], String?)])
+func regionInGeocodedCities(_ cities: [String], _ expected: String?) {
+    #expect(CountryRegistry.standard.region(inCities: cities)?.id == expected)
 }

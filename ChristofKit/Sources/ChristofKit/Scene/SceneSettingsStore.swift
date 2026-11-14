@@ -10,7 +10,9 @@ public struct SceneSettingsStore: Sendable {
     public static let sharedSuite = "group.com.christof.Christof"
     #endif
     private static let key = "sceneSettings"
-    private static let locatedRegionKey = "locatedRegionID"
+    private static let locatedRegionKey = "locatedRegion"
+    // 0.12 까지는 목록의 지역 id 만 남겼다.
+    private static let oldLocatedRegionKey = "locatedRegionID"
     private static let appliedAtKey = "appliedAt"
     private static let widgetFailuresKey = "widgetFailures"
 
@@ -36,13 +38,25 @@ public struct SceneSettingsStore: Sendable {
         defaults.set(try? JSONEncoder().encode(settings), forKey: Self.key)
     }
 
-    /// 앱이 위치로 마지막에 고른 지역. 고른 적이 없으면 기본 지역이다.
+    /// 앱이나 위젯이 위치로 마지막에 고른 지역(내 위치 포함). 위치를 한 번도 받지 못했으면 기본 지역(부산)이다.
     public func loadLocatedRegion(from registry: CountryRegistry = .standard) -> Region {
-        defaults.string(forKey: Self.locatedRegionKey).flatMap(registry.region(id:)) ?? registry.defaultRegion
+        if let data = defaults.data(forKey: Self.locatedRegionKey), let saved = try? JSONDecoder().decode(LocatedRegion.self, from: data) {
+            return registry.region(id: saved.id) ?? Region(id: saved.id, name: saved.name, countryCode: saved.countryCode, latitude: saved.latitude, longitude: saved.longitude, timeZone: .current)
+        }
+        return defaults.string(forKey: Self.oldLocatedRegionKey).flatMap(registry.region(id:)) ?? registry.defaultRegion
     }
 
     public func saveLocatedRegion(_ region: Region) {
-        defaults.set(region.id, forKey: Self.locatedRegionKey)
+        let saved = LocatedRegion(id: region.id, name: region.name, latitude: region.latitude, longitude: region.longitude, countryCode: region.countryCode)
+        defaults.set(try? JSONEncoder().encode(saved), forKey: Self.locatedRegionKey)
+    }
+
+    private struct LocatedRegion: Codable {
+        let id: String
+        let name: LocalizedName
+        let latitude: Double
+        let longitude: Double
+        let countryCode: String
     }
 
     /// 위젯이 타임라인을 만들며 설정을 읽은 가장 늦은 시각. WidgetKit 은 리로드가 끝났다고 알려 주지 않아, 앱은 이 값이 저장 시각을 넘으면 적용됐다고 본다.

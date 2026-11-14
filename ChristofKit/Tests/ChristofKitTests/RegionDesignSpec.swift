@@ -30,8 +30,9 @@ struct RegionDesignSpec {
 
     @Test("'자동'은 위치로 헤네시스를 고르지 않는다")
     func autoNeverPicksHenesys() {
-        #expect(registry.region(at: CLLocation(latitude: henesys.latitude, longitude: henesys.longitude)) != henesys)
-        #expect(registry.region(inCities: ["Henesys"]) != henesys)
+        let there = CLLocation(latitude: henesys.latitude, longitude: henesys.longitude)
+        #expect(RegionGeocoder.region(at: there, address: nil, registry: registry) != henesys)
+        #expect(RegionGeocoder.region(at: there, address: .init(cities: ["Henesys"], city: "Henesys", countryCode: "KR"), registry: registry) != henesys)
     }
 
     @Test("디자인을 따로 고르던 버전이 저장한 설정도 읽는다")

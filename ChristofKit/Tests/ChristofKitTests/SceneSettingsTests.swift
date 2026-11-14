@@ -52,7 +52,7 @@ func settingsWithoutLanguageDecodeAsEnglish() throws {
     #expect(settings == SceneSettings(forcedWeather: .snow))
 }
 
-@Test("위치로 고른 지역을 다시 읽고, 고른 적이 없으면 기본 지역이다")
+@Test("위치로 고른 지역(내 위치 포함)을 다시 읽고, 위치를 한 번도 받지 못했으면 부산이다")
 func locatedRegionRoundTrip() {
     let suite = "christof.tests.\(UUID().uuidString)"
     defer { UserDefaults.standard.removePersistentDomain(forName: suite) }
@@ -60,6 +60,10 @@ func locatedRegionRoundTrip() {
     #expect(store.loadLocatedRegion() == CountryRegistry.standard.defaultRegion)
     store.saveLocatedRegion(seoul)
     #expect(store.loadLocatedRegion() == seoul)
+    let daejeon = Region.here(latitude: 36.3504, longitude: 127.3845, city: "Daejeon", countryCode: "KR")
+    store.saveLocatedRegion(daejeon)
+    #expect(store.loadLocatedRegion() == daejeon)
+    #expect(store.loadLocatedRegion().latitude == 36.3504)
 }
 
 @Test("위젯이 설정을 읽은 시각은 더 늦은 값만 남는다")

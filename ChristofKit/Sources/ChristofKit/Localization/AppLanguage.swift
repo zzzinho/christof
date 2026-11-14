@@ -14,7 +14,7 @@ public enum AppLanguage: String, CaseIterable, Codable, Sendable {
 
 /// 지역·이벤트·날씨처럼 데이터에 딸린 이름. 앱 화면 문구는 앱의 String Catalog 가 맡지만, 이 이름들은 국가 프로필과 함께 두어
 /// 새 국가가 앱 카탈로그를 고치지 않게 한다. 언어를 늘리면 필드를 더해, 번역이 빠진 이름을 컴파일러가 찾게 한다.
-public struct LocalizedName: Hashable, Sendable {
+public struct LocalizedName: Hashable, Sendable, Codable {
     public let en: String
     public let ko: String
 

@@ -8,7 +8,8 @@ private let busan = registry.region(id: "KR.busan")!
 private let cityHall = CLLocation(latitude: 37.5665, longitude: 126.9780)
 private let here = WeatherPlace.location(latitude: 37.5665, longitude: 126.9780)
 // 역지오코딩은 네트워크를 타서, 같은 판정을 하는 반지름 원으로 바꿔 끼운다.
-private let resolver = AutoRegionResolver(timeout: .milliseconds(50)) { registry.region(at: $0) }
+private let resolver = AutoRegionResolver(timeout: .milliseconds(50)) { RegionGeocoder.region(at: $0, address: nil, registry: registry) }
+private let daejeon = CLLocation(latitude: 36.3504, longitude: 127.3845)
 
 @Suite("자동 지역")
 struct AutoRegionSpec {
@@ -16,6 +17,31 @@ struct AutoRegionSpec {
     func located() async {
         let result = await resolver.resolve(fallback: busan) { .location(cityHall) }
         #expect(result == AutoRegion(region: seoul, source: .location, weather: here))
+    }
+
+    @Test("서울·부산 안이면 그 도시를 그린다")
+    func listedCity() {
+        let address = RegionGeocoder.Address(cities: ["Gijang-gun", "Busan"], city: "Busan", countryCode: "KR")
+        #expect(RegionGeocoder.region(at: cityHall, address: address, registry: registry) == registry.region(id: "KR.busan")!)
+    }
+
+    @Test("목록의 도시 밖이면 내 위치를 그 도시 이름과 기본 그림으로 그린다")
+    func myLocation() {
+        let address = RegionGeocoder.Address(cities: ["Yuseong-gu", "Daejeon"], city: "Daejeon", countryCode: "KR")
+        let here = RegionGeocoder.region(at: daejeon, address: address, registry: registry)
+        #expect(here.name.en == "Daejeon")
+        #expect(here.latitude == 36.3504 && here.longitude == 127.3845)
+        #expect(here.countryCode == "KR")
+        #expect(here.timeZone == .current)
+        #expect(here.looks.theme == .lofi)
+    }
+
+    @Test("역지오코딩이 안 되면 서울·부산 반지름 원으로 어림하고, 원 밖이면 이름 없는 내 위치다")
+    func offline() {
+        #expect(RegionGeocoder.region(at: cityHall, address: nil, registry: registry) == seoul)
+        let here = RegionGeocoder.region(at: daejeon, address: nil, registry: registry)
+        #expect(here.name == LocalizedName(en: "My Location", ko: "내 위치"))
+        #expect(here.latitude == 36.3504)
     }
 
     @Test("위치 권한이 없으면 마지막에 고른 지역을 쓰고, 권한이 없다고 남긴다")

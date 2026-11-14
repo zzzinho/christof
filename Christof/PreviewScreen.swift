@@ -202,8 +202,8 @@ private struct SettingsPanel: View {
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
-                if let widgetFailures, widgetFailures.location != nil, let name = widgetFailures.region?.name[language] {
-                    Text("On \(Self.time(widgetFailures.at, language: language)), the widget couldn't get your location, so it showed the weather for \(name).")
+                if let widgetFailures, widgetFailures.location != nil {
+                    Text("On \(Self.time(widgetFailures.at, language: language)), the widget couldn't get your location, so it showed the weather for \(widgetFailures.regionName[language]).")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
@@ -248,7 +248,7 @@ private struct SettingsPanel: View {
     private func widgetLocationFailure(language: AppLanguage) -> Text? {
         guard let widgetFailures, widgetFailures.drewFallbackRegion, let location = widgetFailures.location else { return nil }
         let time = Self.time(widgetFailures.at, language: language)
-        let name = widgetFailures.region?.name[language] ?? widgetFailures.regionID
+        let name = widgetFailures.regionName[language]
         return switch location {
         case .denied: Text("On \(time), the widget had no location access, so it showed \(name).")
         case .unavailable: Text("On \(time), the widget couldn't get your location, so it showed \(name).")
