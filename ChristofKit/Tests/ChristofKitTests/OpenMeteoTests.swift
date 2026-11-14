@@ -110,17 +110,27 @@ private final class StubURLProtocol: URLProtocol {
             client?.urlProtocol(self, didFailWithError: URLError(.resourceUnavailable))
             return
         }
+        // 상태 0 은 서버가 답하지 않는 경우다(2026-11-14 Open-Meteo 가 20초 넘게 답하지 않았다).
+        if stub.status == 0 { return }
         client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
         client?.urlProtocol(self, didLoad: stub.body)
         client?.urlProtocolDidFinishLoading(self)
     }
 }
 
-private func stubbedProvider(region: Region, status: Int, body: Data) -> OpenMeteoWeatherProvider {
+private func stubbedProvider(region: Region, status: Int, body: Data, timeout: Duration = .seconds(10)) -> OpenMeteoWeatherProvider {
     StubURLProtocol.responses.withLock { $0[OpenMeteoRequest.url(latitude: region.latitude, longitude: region.longitude)] = (status, body) }
     let configuration = URLSessionConfiguration.ephemeral
     configuration.protocolClasses = [StubURLProtocol.self]
-    return OpenMeteoWeatherProvider(session: URLSession(configuration: configuration))
+    return OpenMeteoWeatherProvider(session: URLSession(configuration: configuration), timeout: timeout)
+}
+
+// 위젯 리로드는 30초쯤 넘으면 시스템이 끊어(Watchdog provision violated) 맑음으로도 그리지 못한다.
+@Test("예보가 시한 안에 오지 않으면 실패로 보고 맑음으로 그리게 한다", .timeLimit(.minutes(1)))
+func unansweredRequestTimesOut() async {
+    let region = seoul(latitude: 0.5)
+    let provider = stubbedProvider(region: region, status: 0, body: Data(), timeout: .milliseconds(200))
+    await #expect(throws: (any Error).self) { try await provider.forecast(latitude: region.latitude, longitude: region.longitude) }
 }
 
 @Test func http200ReturnsDecodedForecast() async throws {
