@@ -9,15 +9,14 @@ public struct SceneContextFactory: Sendable {
         self.universalOccasions = universalOccasions
     }
 
-    /// 위젯 편집에서 고른 테마(widgetTheme)가 앱 설정보다 먼저다.
-    public func context(now: Date, region: Region, realForecast: WeatherForecast?, settings: SceneSettings, widgetTheme: Theme? = nil) -> SceneContext {
+    public func context(now: Date, region: Region, realForecast: WeatherForecast?, settings: SceneSettings) -> SceneContext {
         let date = settings.fixedDate ?? now
         let forecast = settings.forcedWeather.map { WeatherForecast(samples: [.forced($0, at: date)]) } ?? realForecast
-        return context(at: date, region: region, forecast: forecast, selection: settings.occasion, theme: widgetTheme ?? settings.theme)
+        return context(at: date, region: region, forecast: forecast, selection: settings.occasion)
     }
 
     /// 수동 선택은 국가 이벤트만 바꾸고, 해·달 이벤트는 늘 날짜로 판정한다.
-    public func context(at date: Date, region: Region, forecast: WeatherForecast?, selection: OccasionSelection = .automatic, theme: Theme = .lofi) -> SceneContext {
+    public func context(at date: Date, region: Region, forecast: WeatherForecast?, selection: OccasionSelection = .automatic) -> SceneContext {
         let profile = countries.profile(for: region.countryCode)
         return SceneContext(
             date: date,
@@ -28,8 +27,7 @@ public struct SceneContextFactory: Sendable {
             moon: MoonCalculator.state(at: date, latitude: region.latitude, longitude: region.longitude),
             season: profile?.season(at: date, in: region) ?? .meteorological(at: date, in: region),
             occasions: selection.pick(from: profile?.occasions ?? [], at: date, in: region)
-                + universalOccasions.filter { $0.isActive(at: date, in: region) },
-            theme: theme
+                + universalOccasions.filter { $0.isActive(at: date, in: region) }
         )
     }
 }

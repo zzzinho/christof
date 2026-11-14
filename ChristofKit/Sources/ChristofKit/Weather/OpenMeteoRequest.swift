@@ -5,10 +5,10 @@ enum OpenMeteoRequest {
     private static let endpoint = URL(string: "https://api.open-meteo.com/v1/forecast")!
     private static let variables = "temperature_2m,weather_code,cloud_cover"
 
-    static func url(for region: Region) -> URL {
+    static func url(latitude: Double, longitude: Double) -> URL {
         endpoint.appending(queryItems: [
-            URLQueryItem(name: "latitude", value: String(region.latitude)),
-            URLQueryItem(name: "longitude", value: String(region.longitude)),
+            URLQueryItem(name: "latitude", value: String(latitude)),
+            URLQueryItem(name: "longitude", value: String(longitude)),
             URLQueryItem(name: "current", value: variables),
             URLQueryItem(name: "hourly", value: variables),
             URLQueryItem(name: "timeformat", value: "unixtime"),

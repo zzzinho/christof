@@ -2,9 +2,9 @@
 
 English | [한국어](adding-a-region.ko.md)
 
-Regions cannot be added from the app. You change the design and the code, then build the app yourself. There are two regions now: Seoul and Busan.
+Regions cannot be added from the app. You change the design and the code, then build the app yourself. There are three regions now: Seoul, Busan, and Henesys.
 
-Each region has one landmark in the distance outside the window. Everything else (the room, the person, the cat, and the events) is the same in every region.
+Each real city has one landmark in the distance outside the window. Everything else (the room, the person, the cat, and the events) is the same in every city. A region can also bring a whole design of its own, like Henesys (see "Adding a design" below).
 
 ## 1. Design the far view
 
@@ -27,7 +27,7 @@ The drawing code in `ChristofKit` is a port of the design's JavaScript, with the
 
    - The id (`KR.daegu`) is saved in widget settings. Do not change it after a release.
    - The Korean name must match the key in `REGION_VIEWS`. The design comparison uses it to pick the far view.
-   - The coordinates are the city center. Weather is fetched for this point. The current regions use the center point from [Open-Meteo geocoding](https://open-meteo.com/en/docs/geocoding-api).
+   - The coordinates are the city center. The sun and moon are computed for this point. Weather always comes from the device's location, whatever region is chosen; when the location cannot be read, it comes from the region last picked by location. The current regions use the center point from [Open-Meteo geocoding](https://open-meteo.com/en/docs/geocoding-api).
    - When a widget's region is Auto, the app and the widget look up the city of the device's location with Apple's reverse geocoding, in English, and pick the region with that English name. So the English name must be the city name that Apple Maps uses. Outside every region, they use the default region.
    - `radius` is the rough distance in meters from the center to the city boundary. It is used only when reverse geocoding fails, for example offline.
    - The first region in the list is the default region.
@@ -51,6 +51,23 @@ Build the app with:
 ```sh
 xcodebuild -project Christof.xcodeproj -scheme Christof -destination 'platform=macOS' build
 ```
+
+## Adding a design
+
+A design changes the town outside the window, the window frame, the animal in the cat's spot, and the everyday outfit. It comes with its own region, and there is no separate design setting.
+
+1. Design it as a theme page like `design/03-henesys.html` (`THEMES` in `design/00-base.html`).
+2. Port it to a `Theme` value in `ChristofKit/Sources/ChristofKit/Rendering/Themes/`: the town (`OutsideEffect`), the frame (`WindowFrame`), the animal (`Pets`), and the outfit (`Outfit`). See `Henesys.swift`.
+3. Add a region with that theme to `KoreaRegions.all`. A place that does not exist gets `radius: 0`, so Auto never picks it:
+
+   ```swift
+   region("henesys", LocalizedName(en: "Henesys", ko: "헤네시스"), 35.10168, 129.03004, radius: 0, RegionLooks(theme: .henesys)),
+   ```
+
+   It takes Korea's holidays, seasons, and time zone, and the sun and moon of the coordinates you give.
+4. Add its scenes to the snapshots and compare them as in "Check".
+
+The app's region picker and the widget's region list pick it up. No other code changes.
 
 ## Adding a country
 

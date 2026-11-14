@@ -21,7 +21,7 @@ struct WindowTimelineProvider: AppIntentTimelineProvider {
     func snapshot(for configuration: SelectRegionIntent, in context: Context) async -> WindowEntry {
         let settings = store.load()
         let region = await AutoRegionResolver().resolve(widget: configuration.chosenRegion, app: settings.region, fallback: store.loadLocatedRegion()) { .unavailable }.region
-        return entry(at: .now, region: region, forecast: nil, settings: settings, theme: configuration.chosenTheme)
+        return entry(at: .now, region: region, forecast: nil, settings: settings)
     }
 
     func timeline(for configuration: SelectRegionIntent, in context: Context) async -> Timeline<WindowEntry> {
@@ -34,9 +34,9 @@ struct WindowTimelineProvider: AppIntentTimelineProvider {
         // 예보 실패(오프라인 등)는 맑음으로 그리고, 30분 뒤 다시 시도한다(하루 48회, 리로드 예산 40~70회 안).
         let forecast: WeatherForecast?
         do {
-            forecast = try await weather.forecast(for: region)
+            forecast = try await weather.forecast(latitude: auto.weather.latitude, longitude: auto.weather.longitude)
         } catch {
-            Self.logger.error("예보 실패 \(region.id, privacy: .public): \(error.localizedDescription, privacy: .public)")
+            Self.logger.error("예보 실패 \(auto.weather.fallback?.id ?? "내 위치", privacy: .public): \(error.localizedDescription, privacy: .public)")
             forecast = nil
         }
         store.saveWidgetFailures(WidgetFailures(region: auto, weatherFailed: forecast == nil, at: now))
@@ -49,7 +49,7 @@ struct WindowTimelineProvider: AppIntentTimelineProvider {
         // 약 65KB 라, 1분 간격 180개(약 11MB)는 거부되고 36개(약 2.4MB)는 받아들여졌다. 한도 값은 공개되어 있지 않다.
         let count = settings.fixedDate == nil ? 36 : 1
         let entries = (0..<count).map { i in
-            entry(at: start.addingTimeInterval(Double(i) * step), region: region, forecast: forecast, settings: settings, theme: configuration.chosenTheme)
+            entry(at: start.addingTimeInterval(Double(i) * step), region: region, forecast: forecast, settings: settings)
         }
         let policy: TimelineReloadPolicy = .after(now.addingTimeInterval((forecast == nil ? 30 : 60) * 60))
         return Timeline(entries: entries, policy: policy)
@@ -57,17 +57,18 @@ struct WindowTimelineProvider: AppIntentTimelineProvider {
 
     private static let logger = Logger(subsystem: "com.christof.Christof", category: "widget")
 
-    // 위젯과 앱이 모두 "자동"이면 위젯이 위치를 직접 봐서, 앱을 열지 않아도 도시를 옮기면 바뀐다. 위치를 못 보면 앱이나 위젯이 마지막에 고른 지역을 쓴다.
+    // 날씨는 지역과 상관없이 내 위치에서 받아서 위젯이 위치를 늘 본다. 위젯과 앱이 모두 "자동"이면 그 위치로 지역도 골라,
+    // 앱을 열지 않아도 도시를 옮기면 바뀐다. 위치를 못 보면 앱이나 위젯이 위치로 마지막에 고른 지역을 쓴다.
     private func region(for configuration: SelectRegionIntent, settings: SceneSettings) async -> AutoRegion {
         let auto = await AutoRegionResolver().resolve(widget: configuration.chosenRegion, app: settings.region, fallback: store.loadLocatedRegion()) {
             await WidgetLocation.current().map(LocationReading.location) ?? .unavailable
         }
-        Self.logger.info("지역 \(auto.region.id, privacy: .public): \(String(describing: auto.source), privacy: .public)")
+        Self.logger.info("지역 \(auto.region.id, privacy: .public): \(String(describing: auto.source), privacy: .public), 날씨 \(auto.weather.fallback?.id ?? "내 위치", privacy: .public)")
         if auto.source == .location { store.saveLocatedRegion(auto.region) }
         return auto
     }
 
-    private func entry(at date: Date, region: Region, forecast: WeatherForecast?, settings: SceneSettings, theme: Theme? = nil) -> WindowEntry {
-        WindowEntry(date: date, context: factory.context(now: date, region: region, realForecast: forecast, settings: settings, widgetTheme: theme), language: settings.language)
+    private func entry(at date: Date, region: Region, forecast: WeatherForecast?, settings: SceneSettings) -> WindowEntry {
+        WindowEntry(date: date, context: factory.context(now: date, region: region, realForecast: forecast, settings: settings), language: settings.language)
     }
 }

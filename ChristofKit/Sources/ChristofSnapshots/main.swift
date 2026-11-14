@@ -14,10 +14,8 @@ struct Scenario {
     let weather: (condition: WeatherCondition, intensity: Double, cloudCover: Double, temperature: Double)?
     /// 이름이 약속한 이벤트. 규칙이 바뀌어 빠지면 실행을 멈춘다.
     let occasion: String?
-    let theme: Theme
 
-    init(_ name: String, _ region: Region, _ date: Date, _ weather: (WeatherCondition, Double, Double, Double)?, occasion: String? = nil, theme: Theme = .lofi) {
-        self.theme = theme
+    init(_ name: String, _ region: Region, _ date: Date, _ weather: (WeatherCondition, Double, Double, Double)?, occasion: String? = nil) {
         self.name = name
         self.region = region
         self.date = date
@@ -66,6 +64,7 @@ func sunTime(_ region: Region, _ month: Int, _ day: Int, _ event: KeyPath<SunSta
 
 let seoul = region("KR.seoul")
 let busan = region("KR.busan")
+let henesys = region("KR.henesys")
 // 목록에 없는 지역의 먼 풍경(뒷산과 아파트)도 그려 본다. 시안은 한국어 이름으로 먼 풍경을 고른다.
 let daegu = Region(id: "test.daegu", name: LocalizedName(en: "Daegu", ko: "대구"), countryCode: "KR", latitude: 35.87028, longitude: 128.59111, timeZone: seoul.timeZone)
 let scenarios: [Scenario] = [
@@ -88,16 +87,16 @@ let scenarios: [Scenario] = [
     Scenario("17-jeongwol-daeboreum-night", seoul, localTime(seoul, 3, 3, 21), (.clear, 0, 0.05, 2), occasion: "KR.jeongwolDaeboreum"),
     Scenario("18-new-year-sunrise", busan, sunTime(busan, 1, 1, \.sunrise), (.clear, 0, 0.1, -6), occasion: "KR.newYearsDay"),
     Scenario("19-warm-winter-clear-day", busan, localTime(busan, 1, 15, 14), (.clear, 0, 0.1, 8)),
-    // 헤네시스 테마. 해·달·날씨·이벤트는 지역 기준 그대로다. 낮 장면은 시각 시드로 지나가는 몬스터가 갈린다.
-    Scenario("20-henesys-summer-day", seoul, localTime(seoul, 7, 15, 13), (.clear, 0, 0.1, 31), theme: .henesys),
-    Scenario("21-henesys-spring-day", busan, localTime(busan, 4, 5, 11), (.partlyCloudy, 0, 0.3, 17), theme: .henesys),
-    Scenario("22-henesys-autumn-meal", seoul, localTime(seoul, 11, 2, 12), (.clear, 0, 0.15, 16), theme: .henesys),
-    Scenario("23-henesys-sunset", busan, sunTime(busan, 6, 21, \.sunset), (.partlyCloudy, 0, 0.35, 24), occasion: "sky.sunset", theme: .henesys),
-    Scenario("24-henesys-crescent-night", seoul, localTime(seoul, 3, 22, 20), (.clear, 0, 0, 5), theme: .henesys),
-    Scenario("25-henesys-rainy-afternoon", busan, localTime(busan, 7, 10, 15), (.rain, 0.6, 0.95, 24), theme: .henesys),
-    Scenario("26-henesys-snowy-christmas", seoul, localTime(seoul, 12, 25, 10), (.snow, 0.6, 0.9, -2), occasion: "KR.christmas", theme: .henesys),
-    Scenario("27-henesys-chuseok-night", seoul, localTime(seoul, 9, 25, 21), (.clear, 0, 0.05, 19), occasion: "KR.chuseok", theme: .henesys),
-    Scenario("28-henesys-winter-sleep", busan, localTime(busan, 1, 15, 10), (.clear, 0, 0.1, 8), theme: .henesys),
+    // 헤네시스. 해·달은 부산 좌표, 이벤트는 한국이다. 낮 장면은 시각 시드로 지나가는 몬스터가 갈린다.
+    Scenario("20-henesys-summer-day", henesys, localTime(henesys, 7, 15, 13), (.clear, 0, 0.1, 31)),
+    Scenario("21-henesys-spring-day", henesys, localTime(henesys, 4, 5, 11), (.partlyCloudy, 0, 0.3, 17)),
+    Scenario("22-henesys-autumn-meal", henesys, localTime(henesys, 11, 2, 12), (.clear, 0, 0.15, 16)),
+    Scenario("23-henesys-sunset", henesys, sunTime(henesys, 6, 21, \.sunset), (.partlyCloudy, 0, 0.35, 24), occasion: "sky.sunset"),
+    Scenario("24-henesys-crescent-night", henesys, localTime(henesys, 3, 22, 20), (.clear, 0, 0, 5)),
+    Scenario("25-henesys-rainy-afternoon", henesys, localTime(henesys, 7, 10, 15), (.rain, 0.6, 0.95, 24)),
+    Scenario("26-henesys-snowy-christmas", henesys, localTime(henesys, 12, 25, 10), (.snow, 0.6, 0.9, -2), occasion: "KR.christmas"),
+    Scenario("27-henesys-chuseok-night", henesys, localTime(henesys, 9, 25, 21), (.clear, 0, 0.05, 19), occasion: "KR.chuseok"),
+    Scenario("28-henesys-winter-sleep", henesys, localTime(henesys, 1, 15, 10), (.clear, 0, 0.1, 8)),
 ]
 
 let output = URL(fileURLWithPath: CommandLine.arguments.dropFirst().first ?? "snapshots", isDirectory: true)
@@ -129,7 +128,7 @@ func gridText(_ grid: DotGrid) -> String {
 let factory = SceneContextFactory()
 var designScenes: [[String: Any]] = []
 for scenario in scenarios {
-    let context = factory.context(at: scenario.date, region: scenario.region, forecast: scenario.forecast, theme: scenario.theme)
+    let context = factory.context(at: scenario.date, region: scenario.region, forecast: scenario.forecast)
     if let id = scenario.occasion, !context.occasions.contains(where: { $0.id == id }) {
         fatalError("\(scenario.name): 이벤트 \(id) 가 진행 중이 아니다. 실제 이벤트 \(context.occasions.map(\.id))")
     }

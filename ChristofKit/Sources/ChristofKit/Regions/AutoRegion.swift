@@ -7,7 +7,37 @@ public enum LocationReading: Sendable {
     case unavailable
 }
 
-/// 위젯이 그릴 지역과 그 출처. 위치를 못 받았으면(`denied`, `unavailable`) 마지막에 고른 지역을 그대로 쓴다.
+/// 날씨를 받는 자리. 그리는 지역과 상관없이 내 위치다(헤네시스처럼 실제 자리가 없는 지역도 있다).
+/// 위치를 못 받으면 위치로 마지막에 고른 지역에서 받는다.
+public enum WeatherPlace: Equatable, Sendable {
+    case location(latitude: Double, longitude: Double)
+    case denied(Region)
+    case unavailable(Region)
+
+    /// 위치 대신 쓴 지역.
+    public var fallback: Region? {
+        switch self {
+        case .location: nil
+        case .denied(let region), .unavailable(let region): region
+        }
+    }
+
+    public var latitude: Double {
+        switch self {
+        case .location(let latitude, _): latitude
+        case .denied(let region), .unavailable(let region): region.latitude
+        }
+    }
+
+    public var longitude: Double {
+        switch self {
+        case .location(_, let longitude): longitude
+        case .denied(let region), .unavailable(let region): region.longitude
+        }
+    }
+}
+
+/// 위젯이 그릴 지역과 그 출처, 날씨를 받을 자리. 위치를 못 받았으면(`denied`, `unavailable`) 마지막에 고른 지역을 그대로 쓴다.
 public struct AutoRegion: Equatable, Sendable {
     public enum Source: Equatable, Sendable {
         case widget, app, location, denied, unavailable
@@ -15,10 +45,12 @@ public struct AutoRegion: Equatable, Sendable {
 
     public let region: Region
     public let source: Source
+    public let weather: WeatherPlace
 
-    public init(region: Region, source: Source) {
+    public init(region: Region, source: Source, weather: WeatherPlace) {
         self.region = region
         self.source = source
+        self.weather = weather
     }
 }
 
@@ -31,14 +63,20 @@ public struct AutoRegionResolver: Sendable {
         self.regionAt = regionAt
     }
 
-    /// 위젯 편집에서 고른 지역, 앱에서 저장한 지역, 위치 순으로 고른다.
+    /// 지역은 위젯 편집에서 고른 지역, 앱에서 저장한 지역, 위치 순으로 고른다. 날씨 자리 때문에 위치는 늘 본다.
     public func resolve(widget: Region? = nil, app: Region? = nil, fallback: Region, locate: @escaping @Sendable () async -> LocationReading) async -> AutoRegion {
-        if let widget { return AutoRegion(region: widget, source: .widget) }
-        if let app { return AutoRegion(region: app, source: .app) }
-        return switch await Self.first(within: timeout, locate) {
-        case .location(let location)?: AutoRegion(region: await regionAt(location), source: .location)
-        case .denied?: AutoRegion(region: fallback, source: .denied)
-        case .unavailable?, nil: AutoRegion(region: fallback, source: .unavailable)
+        let reading = await Self.first(within: timeout, locate) ?? .unavailable
+        let weather: WeatherPlace = switch reading {
+        case .location(let location): .location(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
+        case .denied: .denied(fallback)
+        case .unavailable: .unavailable(fallback)
+        }
+        if let widget { return AutoRegion(region: widget, source: .widget, weather: weather) }
+        if let app { return AutoRegion(region: app, source: .app, weather: weather) }
+        return switch reading {
+        case .location(let location): AutoRegion(region: await regionAt(location), source: .location, weather: weather)
+        case .denied: AutoRegion(region: fallback, source: .denied, weather: weather)
+        case .unavailable: AutoRegion(region: fallback, source: .unavailable, weather: weather)
         }
     }
 

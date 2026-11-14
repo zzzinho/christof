@@ -7,8 +7,8 @@ public struct OpenMeteoWeatherProvider: WeatherProviding {
         self.session = session
     }
 
-    public func forecast(for region: Region) async throws -> WeatherForecast {
-        let (data, response) = try await session.data(from: OpenMeteoRequest.url(for: region))
+    public func forecast(latitude: Double, longitude: Double) async throws -> WeatherForecast {
+        let (data, response) = try await session.data(from: OpenMeteoRequest.url(latitude: latitude, longitude: longitude))
         // ponytail: 상태 코드를 버린다. 재시도·백오프를 상태별로 나눌 때 상태 코드를 담은 에러 타입을 만든다.
         guard (response as? HTTPURLResponse)?.statusCode == 200 else {
             throw URLError(.badServerResponse)

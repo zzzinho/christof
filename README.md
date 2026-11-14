@@ -2,7 +2,7 @@
 
 English | [한국어](README.ko.md)
 
-A macOS widget that shows the weather, time, and holidays of a place you choose as the view outside a window. It is drawn in 3pt pixel dots. The name comes from Christof, the director who stages the fake world in The Truman Show: this is a virtual window.
+A macOS widget that shows your weather, the time, and holidays as the view outside a window, in a place you choose: Seoul, Busan, or Henesys, the mushroom village of MapleStory. It is drawn in 3pt pixel dots. The name comes from Christof, the director who stages the fake world in The Truman Show: this is a virtual window.
 
 **Time** · Busan, a clear day in June: before dawn → sunrise → morning → noon → afternoon → sunset → evening → late night
 
@@ -18,7 +18,7 @@ A macOS widget that shows the weather, time, and holidays of a place you choose 
 
 ## What it shows
 
-- **Weather**: the current weather of the place. Clear, partly cloudy, overcast, fog, drizzle, rain, snow, and thunderstorms are drawn outside the window.
+- **Weather**: the current weather where you are, whatever place you choose. Clear, partly cloudy, overcast, fog, drizzle, rain, snow, and thunderstorms are drawn outside the window.
 - **Time**: the sun and moon are drawn at their real positions, and the sky changes through day, dusk, and night. The wall clock shows the local time.
 - **Events**
   - Holidays: Seollal (Lunar New Year), Jeongwol Daeboreum (first full moon), Buddha's Birthday, Chuseok, Halloween, Christmas Eve and Christmas, New Year's Day

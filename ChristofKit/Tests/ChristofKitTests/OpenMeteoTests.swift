@@ -17,7 +17,7 @@ private func seoul(latitude: Double = 37.5665) -> Region {
 }
 
 @Test func requestURLAsksForCurrentAndTwoDaysOfHourlyInUnixTime() throws {
-    let url = OpenMeteoRequest.url(for: seoul())
+    let url = OpenMeteoRequest.url(latitude: 37.5665, longitude: 126.978)
     let components = try #require(URLComponents(url: url, resolvingAgainstBaseURL: false))
     #expect(components.host == "api.open-meteo.com")
     #expect(components.path == "/v1/forecast")
@@ -117,7 +117,7 @@ private final class StubURLProtocol: URLProtocol {
 }
 
 private func stubbedProvider(region: Region, status: Int, body: Data) -> OpenMeteoWeatherProvider {
-    StubURLProtocol.responses.withLock { $0[OpenMeteoRequest.url(for: region)] = (status, body) }
+    StubURLProtocol.responses.withLock { $0[OpenMeteoRequest.url(latitude: region.latitude, longitude: region.longitude)] = (status, body) }
     let configuration = URLSessionConfiguration.ephemeral
     configuration.protocolClasses = [StubURLProtocol.self]
     return OpenMeteoWeatherProvider(session: URLSession(configuration: configuration))
@@ -125,7 +125,7 @@ private func stubbedProvider(region: Region, status: Int, body: Data) -> OpenMet
 
 @Test func http200ReturnsDecodedForecast() async throws {
     let region = seoul(latitude: 1)
-    let forecast = try await stubbedProvider(region: region, status: 200, body: seoulFixture).forecast(for: region)
+    let forecast = try await stubbedProvider(region: region, status: 200, body: seoulFixture).forecast(latitude: region.latitude, longitude: region.longitude)
     #expect(forecast == (try OpenMeteoResponse.forecast(from: seoulFixture)))
 }
 
@@ -134,5 +134,5 @@ private func stubbedProvider(region: Region, status: Int, body: Data) -> OpenMet
 func nonOKStatusThrowsBadServerResponse(status: Int) async {
     let region = seoul(latitude: Double(status) / 10)
     let provider = stubbedProvider(region: region, status: status, body: seoulFixture)
-    await #expect(throws: URLError(.badServerResponse)) { try await provider.forecast(for: region) }
+    await #expect(throws: URLError(.badServerResponse)) { try await provider.forecast(latitude: region.latitude, longitude: region.longitude) }
 }

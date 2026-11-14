@@ -9,10 +9,10 @@ public struct SceneContext: Sendable {
     public let moon: MoonState
     public let season: Season
     public let occasions: [Occasion]
-    public let theme: Theme
 
-    public init(date: Date, region: Region, weather: WeatherSample?, sun: SunState, moon: MoonState, season: Season, occasions: [Occasion], theme: Theme = .lofi) {
-        self.theme = theme
+    public var theme: Theme { region.looks.theme }
+
+    public init(date: Date, region: Region, weather: WeatherSample?, sun: SunState, moon: MoonState, season: Season, occasions: [Occasion]) {
         self.date = date
         self.region = region
         self.weather = weather

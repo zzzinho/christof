@@ -1,26 +1,18 @@
-/// 디자인(테마). 지역과 따로 고른다. 지역은 날씨·시각·해달·이벤트를, 테마는 그림 세계를 정한다. 시안의 THEMES 다.
+/// 디자인(테마). 지역이 하나씩 단다(RegionLooks.theme). 시안의 THEMES 다.
 /// 테마가 바꾸는 것: 창밖 마을(town), 창틀(frame), 고양이 자리의 동물(pets), 평소 옷(outfit).
 /// 벽·책상·시계·스탠드와 이벤트 모양은 테마와 관계없이 같다. 지역별 먼 풍경(남산타워, 광안대교)은 기본 테마에만 있다.
-public struct Theme: Hashable, Sendable, Identifiable {
-    /// 설정에 저장되는 키라 바꾸지 않는다.
+public struct Theme: Equatable, Sendable {
+    /// 시안 비교(scenes.json)가 시안의 THEMES 키로 쓴다.
     public let id: String
-    public let name: LocalizedName
     let town: any OutsideEffect
     let frame: any WindowFrame
     let pets: Pets
     let outfit: Outfit
 
-    public static let lofi = Theme(id: "lofi", name: LocalizedName(en: "Default", ko: "기본"), town: KoreanTownEffect(), frame: SashFrame(), pets: .cat, outfit: .pajama)
-    public static let henesys = Theme(id: "henesys", name: LocalizedName(en: "Henesys", ko: "헤네시스"), town: HenesysEffect(), frame: CottageFrame(), pets: .mushroom, outfit: .bowman)
-    public static let all = [lofi, henesys]
-
-    /// 목록에 없는 id(없어진 테마 등)는 기본 테마다.
-    public static func named(_ id: String?) -> Theme {
-        all.first { $0.id == id } ?? .lofi
-    }
+    public static let lofi = Theme(id: "lofi", town: KoreanTownEffect(), frame: SashFrame(), pets: .cat, outfit: .pajama)
+    public static let henesys = Theme(id: "henesys", town: HenesysEffect(), frame: CottageFrame(), pets: .mushroom, outfit: .bowman)
 
     public static func == (a: Theme, b: Theme) -> Bool { a.id == b.id }
-    public func hash(into hasher: inout Hasher) { hasher.combine(id) }
 }
 
 /// 고양이 자리의 동물. 자세 이름과 자리는 고양이와 같고, lit·unlit 은 불 켬·끔 색표에 덮어쓰는 글자 → 색이다.

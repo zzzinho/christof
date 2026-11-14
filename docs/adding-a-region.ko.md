@@ -2,9 +2,9 @@
 
 [English](adding-a-region.md) | 한국어
 
-지역은 앱에서 더할 수 없습니다. 시안과 코드를 고친 뒤 앱을 직접 빌드합니다. 지금 지역은 서울과 부산 둘입니다.
+지역은 앱에서 더할 수 없습니다. 시안과 코드를 고친 뒤 앱을 직접 빌드합니다. 지금 지역은 서울, 부산, 헤네시스 셋입니다.
 
-지역마다 창밖 먼 풍경에 랜드마크가 하나 있습니다. 나머지(방 안, 사람, 고양이, 이벤트)는 모든 지역이 같습니다.
+실제 도시마다 창밖 먼 풍경에 랜드마크가 하나 있습니다. 나머지(방 안, 사람, 고양이, 이벤트)는 모든 도시가 같습니다. 헤네시스처럼 지역이 디자인을 통째로 가져올 수도 있습니다(아래 "디자인 추가하기").
 
 ## 1. 먼 풍경 디자인
 
@@ -27,7 +27,7 @@
 
    - id(`KR.daegu`)는 위젯 설정에 저장됩니다. 한 번 릴리스한 뒤에는 바꾸지 않습니다.
    - 한국어 이름은 `REGION_VIEWS` 의 키와 같아야 합니다. 시안 비교가 이 이름으로 먼 풍경을 고릅니다.
-   - 좌표는 도시 중심점이고, 날씨를 이 지점으로 받습니다. 지금 지역들은 [Open-Meteo 지오코딩](https://open-meteo.com/en/docs/geocoding-api)의 중심점을 씁니다.
+   - 좌표는 도시 중심점이고, 해와 달을 이 지점으로 계산합니다. 날씨는 어느 지역을 고르든 기기 위치에서 받고, 위치를 받지 못하면 위치로 마지막에 고른 지역에서 받습니다. 지금 지역들은 [Open-Meteo 지오코딩](https://open-meteo.com/en/docs/geocoding-api)의 중심점을 씁니다.
    - 위젯 지역이 "자동"이면 앱과 위젯이 기기 위치의 도시를 Apple 역지오코딩으로 영어로 찾아, 영어 이름이 같은 지역을 고릅니다. 그래서 영어 이름은 Apple 지도가 쓰는 도시 이름과 같아야 합니다. 어느 지역에도 들지 않으면 기본 지역을 씁니다.
    - `radius` 는 중심에서 시 경계까지의 대략 거리(미터)입니다. 오프라인처럼 역지오코딩이 실패할 때만 씁니다.
    - 목록의 첫 지역이 기본 지역입니다.
@@ -51,6 +51,23 @@ node ChristofKit/Scripts/compare-design.mjs /tmp/christof-snapshots design/00-ba
 ```sh
 xcodebuild -project Christof.xcodeproj -scheme Christof -destination 'platform=macOS' build
 ```
+
+## 디자인 추가하기
+
+디자인은 창밖 마을, 창틀, 고양이 자리의 동물, 평소 옷을 바꿉니다. 디자인은 지역 하나에 딸려 오고, 따로 고르는 디자인 설정은 없습니다.
+
+1. `design/03-henesys.html` 같은 테마 페이지로 디자인합니다(`design/00-base.html` 의 `THEMES`).
+2. `ChristofKit/Sources/ChristofKit/Rendering/Themes/` 에 `Theme` 값으로 옮깁니다: 마을(`OutsideEffect`), 창틀(`WindowFrame`), 동물(`Pets`), 옷(`Outfit`). `Henesys.swift` 를 보세요.
+3. 그 테마를 단 지역을 `KoreaRegions.all` 에 더합니다. 실제로 없는 곳은 `radius: 0` 으로 두어 "자동"이 고르지 않게 합니다.
+
+   ```swift
+   region("henesys", LocalizedName(en: "Henesys", ko: "헤네시스"), 35.10168, 129.03004, radius: 0, RegionLooks(theme: .henesys)),
+   ```
+
+   한국의 명절·계절·시간대를 쓰고, 해와 달은 적은 좌표로 계산합니다.
+4. 스냅샷에 그 지역 장면을 더해 "확인"처럼 견줍니다.
+
+앱의 지역 선택과 위젯의 지역 목록에 저절로 나옵니다. 다른 코드는 고치지 않습니다.
 
 ## 나라 추가하기
 

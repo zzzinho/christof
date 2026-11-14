@@ -10,6 +10,8 @@ struct PreviewScreen: View {
     @State private var realForecast: Result<WeatherForecast, any Error>?
     @State private var located: Region
     @State private var autoSource: AutoRegion.Source?
+    /// 날씨를 받는 자리. 앱이 위치를 보기 전에는 nil 이라 예보를 받지 않는다.
+    @State private var weatherPlace: WeatherPlace?
     @State private var savedAt: Date?
     @State private var applyStatus: WidgetApplyStatus?
     @State private var widgetFailures: WidgetFailures?
@@ -34,7 +36,7 @@ struct PreviewScreen: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
-                SettingsPanel(settings: $settings, located: located, autoSource: autoSource, widgetFailures: widgetFailures, forecastStatus: forecastStatus)
+                SettingsPanel(settings: $settings, located: located, autoSource: autoSource, weatherPlace: weatherPlace, widgetFailures: widgetFailures, forecastStatus: forecastStatus)
                 SaveBar(hasChanges: settings.sceneSettings != saved, status: applyStatus, save: save, refresh: refresh)
                 TimelineView(.everyMinute) { timeline in
                     // 실패는 위 상태 문구로 보여 주고, 장면은 맑음으로 그린다(SceneContextFactory).
@@ -52,9 +54,11 @@ struct PreviewScreen: View {
         // 화면 문구(String Catalog)와 날짜 형식이 저장 전에도 고른 언어를 따른다.
         .environment(\.locale, settings.language.locale)
         // 위젯의 "자동" 지역은 앱을 열 때 위치로 고른다. 위치를 못 받으면 마지막에 고른 지역을 덮지 않고 그 이유를 보여 준다.
+        // 날씨는 고른 지역과 상관없이 이 위치에서 받는다.
         .task(id: reloads) {
             let auto = await AutoRegionResolver().resolve(fallback: located) { await DeviceLocation.current() }
             autoSource = auto.source
+            weatherPlace = auto.weather
             Self.logger.info("자동 지역 \(auto.region.id, privacy: .public): \(String(describing: auto.source), privacy: .public)")
             guard auto.source == .location else { return }
             store.saveLocatedRegion(auto.region)
@@ -75,16 +79,17 @@ struct PreviewScreen: View {
                 try? await Task.sleep(for: .seconds(1))
             }
         }
-        .task(id: ForecastRequest(region: region, reload: reloads)) {
+        .task(id: ForecastRequest(place: weatherPlace, reload: reloads)) {
             realForecast = nil
+            guard let place = weatherPlace else { return }
             let result: Result<WeatherForecast, any Error>
             do {
-                result = .success(try await weather.forecast(for: region))
+                result = .success(try await weather.forecast(latitude: place.latitude, longitude: place.longitude))
             } catch {
-                Self.weatherLogger.error("예보 실패 \(region.id, privacy: .public): \(error.localizedDescription, privacy: .public)")
+                Self.weatherLogger.error("예보 실패 \(place.fallback?.id ?? "내 위치", privacy: .public): \(error.localizedDescription, privacy: .public)")
                 result = .failure(error)
             }
-            // 지역이 바뀌어 취소된 요청이 새 지역의 상태를 덮지 않게 한다.
+            // 위치가 바뀌어 취소된 요청이 새 위치의 상태를 덮지 않게 한다.
             if !Task.isCancelled { realForecast = result }
         }
     }
@@ -92,8 +97,8 @@ struct PreviewScreen: View {
     private static let logger = Logger(subsystem: "com.christof.Christof", category: "location")
     private static let weatherLogger = Logger(subsystem: "com.christof.Christof", category: "weather")
 
-    private struct ForecastRequest: Hashable {
-        let region: Region
+    private struct ForecastRequest: Equatable {
+        let place: WeatherPlace?
         let reload: Int
     }
 
@@ -133,6 +138,7 @@ private struct SettingsPanel: View {
     @Binding var settings: PreviewSettings
     let located: Region
     let autoSource: AutoRegion.Source?
+    let weatherPlace: WeatherPlace?
     let widgetFailures: WidgetFailures?
     let forecastStatus: Text
 
@@ -166,12 +172,6 @@ private struct SettingsPanel: View {
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
-            LabeledContent("Design") {
-                Picker("Design", selection: $settings.theme) {
-                    ForEach(Theme.all) { Text($0.name[language]).tag($0) }
-                }
-                .labelsHidden()
-            }
             LabeledContent("Time") {
                 Picker("Time", selection: $settings.usesCurrentTime) {
                     Text("Auto").tag(true)
@@ -197,6 +197,16 @@ private struct SettingsPanel: View {
                 forecastStatus
                     .font(.footnote)
                     .foregroundStyle(.secondary)
+                if let reason = weatherPlaceReason(language: language) {
+                    reason
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+                if let widgetFailures, widgetFailures.location != nil, let name = widgetFailures.region?.name[language] {
+                    Text("On \(Self.time(widgetFailures.at, language: language)), the widget couldn't get your location, so it showed the weather for \(name).")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
                 if let widgetFailures, widgetFailures.weather {
                     Text("On \(Self.time(widgetFailures.at, language: language)), the widget couldn't load the weather, so it showed Clear.")
                         .font(.footnote)
@@ -227,8 +237,16 @@ private struct SettingsPanel: View {
         }
     }
 
+    private func weatherPlaceReason(language: AppLanguage) -> Text? {
+        switch weatherPlace {
+        case .denied(let region): Text("Location access is off, so the weather is for \(region.name[language]). Allow location access for Christof in Settings.")
+        case .unavailable(let region): Text("Couldn't get your location, so the weather is for \(region.name[language]).")
+        case .location, nil: nil
+        }
+    }
+
     private func widgetLocationFailure(language: AppLanguage) -> Text? {
-        guard let widgetFailures, let location = widgetFailures.location else { return nil }
+        guard let widgetFailures, widgetFailures.drewFallbackRegion, let location = widgetFailures.location else { return nil }
         let time = Self.time(widgetFailures.at, language: language)
         let name = widgetFailures.region?.name[language] ?? widgetFailures.regionID
         return switch location {
@@ -266,7 +284,7 @@ private struct SaveBar: View {
 
     private var message: Text {
         if hasChanges {
-            return Text("Save to apply these settings to the widget. A widget given its own region or design in Edit Widget keeps it.")
+            return Text("Save to apply these settings to the widget. A widget given its own region in Edit Widget keeps that region.")
         }
         switch status {
         case .applying: return Text("Applying to the widget…")
@@ -356,12 +374,12 @@ private struct WidgetGuide: View {
                 .font(.headline)
             #if os(macOS)
             Text("Right-click the desktop → Edit Widgets → find Christof and place it on the desktop.")
-            Text("To give one widget its own region or design, right-click it → Edit Widget.")
+            Text("To give one widget its own region, right-click it → Edit Widget.")
             #else
             Text("Touch and hold the Home Screen → Edit → Add Widget → choose Christof.")
-            Text("To give one widget its own region or design, touch and hold it → Edit Widget.")
+            Text("To give one widget its own region, touch and hold it → Edit Widget.")
             #endif
-            Text("Selecting the widget opens this app. Change the region, design, language, time, weather, or event here and save to apply them to the widget.")
+            Text("Selecting the widget opens this app. Change the region, language, time, weather, or event here and save to apply them to the widget.")
             Text("Version \(Self.info("CFBundleShortVersionString")) (\(Self.info("CFBundleVersion")))")
                 .foregroundStyle(.secondary)
         }

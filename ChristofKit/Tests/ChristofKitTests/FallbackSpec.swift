@@ -5,6 +5,7 @@ import Testing
 private let seoul = CountryRegistry.standard.region(id: "KR.seoul")!
 private let busan = CountryRegistry.standard.region(id: "KR.busan")!
 private let now = Date(timeIntervalSinceReferenceDate: 815_000_000)
+private let here = WeatherPlace.location(latitude: 37.5665, longitude: 126.978)
 
 @Suite("위치·날씨를 받지 못했을 때")
 struct FallbackSpec {
@@ -24,29 +25,24 @@ struct FallbackSpec {
 
     @Test("위젯이 위치와 날씨를 모두 받으면 남길 실패가 없다")
     func nothingFailed() {
-        #expect(WidgetFailures(region: AutoRegion(region: seoul, source: .location), weatherFailed: false, at: now) == nil)
+        #expect(WidgetFailures(region: AutoRegion(region: seoul, source: .location, weather: here), weatherFailed: false, at: now) == nil)
     }
 
     @Test("위젯이 위치 권한이 없으면 그 사실과 대신 그린 지역을 남긴다")
     func locationDenied() throws {
-        let failures = try #require(WidgetFailures(region: AutoRegion(region: busan, source: .denied), weatherFailed: false, at: now))
+        let failures = try #require(WidgetFailures(region: AutoRegion(region: busan, source: .denied, weather: .denied(busan)), weatherFailed: false, at: now))
         #expect(failures.location == .denied)
         #expect(failures.region == busan)
+        #expect(failures.drewFallbackRegion)
         #expect(!failures.weather)
     }
 
     @Test("위젯이 날씨를 받지 못하면 그 사실을 남긴다")
     func weatherFailed() throws {
-        let failures = try #require(WidgetFailures(region: AutoRegion(region: seoul, source: .location), weatherFailed: true, at: now))
+        let failures = try #require(WidgetFailures(region: AutoRegion(region: seoul, source: .location, weather: here), weatherFailed: true, at: now))
         #expect(failures.weather)
         #expect(failures.location == nil)
         #expect(failures.at == now)
-    }
-
-    @Test("앱이나 위젯 편집에서 고른 지역은 위치를 보지 않으니 위치 실패가 아니다")
-    func chosenRegionIsNotLocationFailure() {
-        #expect(WidgetFailures(region: AutoRegion(region: busan, source: .app), weatherFailed: false, at: now) == nil)
-        #expect(WidgetFailures(region: AutoRegion(region: busan, source: .widget), weatherFailed: false, at: now) == nil)
     }
 
     @Test("위젯이 남긴 실패를 앱이 읽고, 다음에 모두 받으면 지워진다")
@@ -54,7 +50,7 @@ struct FallbackSpec {
         let suite = "christof.tests.\(UUID().uuidString)"
         defer { UserDefaults.standard.removePersistentDomain(forName: suite) }
         let store = SceneSettingsStore(suiteName: suite)
-        let failures = WidgetFailures(region: AutoRegion(region: busan, source: .unavailable), weatherFailed: true, at: now)
+        let failures = WidgetFailures(region: AutoRegion(region: busan, source: .unavailable, weather: .unavailable(busan)), weatherFailed: true, at: now)
         store.saveWidgetFailures(failures)
         #expect(store.loadWidgetFailures() == failures)
         store.saveWidgetFailures(nil)

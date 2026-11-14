@@ -21,12 +21,12 @@
         }
       }
     },
-    "Choose the region and design to show outside the window." : {
+    "Choose the region to show outside the window." : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "창밖 풍경을 보여줄 지역과 디자인을 고릅니다."
+            "value" : "창밖 풍경을 보여줄 지역을 고릅니다."
           }
         }
       }
@@ -41,32 +41,12 @@
         }
       }
     },
-    "Design" : {
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "디자인"
-          }
-        }
-      }
-    },
     "Region" : {
       "localizations" : {
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "지역"
-          }
-        }
-      }
-    },
-    "Same as App" : {
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "앱 설정 따르기"
           }
         }
       }

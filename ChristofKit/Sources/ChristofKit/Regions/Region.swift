@@ -28,9 +28,11 @@ public struct Region: Hashable, Sendable, Identifiable {
     public func hash(into hasher: inout Hasher) { hasher.combine(id) }
 }
 
-/// 지역마다 다른 창밖 모양. 표에 없는 지역은 뒷산과 아파트 단지다.
+/// 지역마다 다른 그림. 테마가 창밖 마을·창틀·동물·평소 옷을 정하고, 기본 테마 마을의 먼 풍경은 지역마다 다르다.
+/// 새 디자인은 테마를 만들어 지역 목록에 그 테마를 단 지역 하나로 더한다.
 public struct RegionLooks: Sendable {
     var far: any FarView = ApartmentView()
+    var theme: Theme = .lofi
 
     public static let none = RegionLooks()
 }

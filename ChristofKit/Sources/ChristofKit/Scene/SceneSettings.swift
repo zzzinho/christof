@@ -8,11 +8,8 @@ public struct SceneSettings: Hashable, Sendable, Codable {
     public var forcedWeather: WeatherCondition?
     public var occasion: OccasionSelection
     public var language: AppLanguage
-    /// 위젯 편집에서 테마를 고른 위젯은 이 값을 쓰지 않는다.
-    public var themeID: String
 
-    public init(region: Region? = nil, fixedDate: Date? = nil, forcedWeather: WeatherCondition? = nil, occasion: OccasionSelection = .automatic, language: AppLanguage = .english, theme: Theme = .lofi) {
-        self.themeID = theme.id
+    public init(region: Region? = nil, fixedDate: Date? = nil, forcedWeather: WeatherCondition? = nil, occasion: OccasionSelection = .automatic, language: AppLanguage = .english) {
         self.regionID = region?.id
         self.fixedDate = fixedDate
         self.forcedWeather = forcedWeather
@@ -20,7 +17,7 @@ public struct SceneSettings: Hashable, Sendable, Codable {
         self.language = language
     }
 
-    // 언어·지역·테마가 없던 버전이 저장한 값도 읽는다.
+    // 언어·지역이 없던 버전과 테마를 따로 고르던 버전(0.11, themeID 는 버린다)이 저장한 값도 읽는다.
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.init(
@@ -29,13 +26,6 @@ public struct SceneSettings: Hashable, Sendable, Codable {
             occasion: try container.decode(OccasionSelection.self, forKey: .occasion),
             language: try container.decodeIfPresent(AppLanguage.self, forKey: .language) ?? .english)
         regionID = try container.decodeIfPresent(String.self, forKey: .regionID)
-        themeID = try container.decodeIfPresent(String.self, forKey: .themeID) ?? Theme.lofi.id
-    }
-
-    /// 목록에서 빠진 테마는 기본 테마다.
-    public var theme: Theme {
-        get { Theme.named(themeID) }
-        set { themeID = newValue.id }
     }
 
     /// 목록에서 빠진 지역(예전 버전의 대구 등)은 nil 이라 "자동"이 된다.

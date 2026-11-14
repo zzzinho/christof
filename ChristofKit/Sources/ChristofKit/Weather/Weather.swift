@@ -49,5 +49,5 @@ public struct WeatherForecast: Sendable, Hashable {
 }
 
 public protocol WeatherProviding: Sendable {
-    func forecast(for region: Region) async throws -> WeatherForecast
+    func forecast(latitude: Double, longitude: Double) async throws -> WeatherForecast
 }

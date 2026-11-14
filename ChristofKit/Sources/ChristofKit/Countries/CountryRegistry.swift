@@ -25,14 +25,19 @@ public struct CountryRegistry: Sendable {
         regions[0]
     }
 
+    // 반지름이 0 인 지역(헤네시스처럼 실제 자리가 없는 곳)은 위치로 고르지 않는다.
+    private var locatable: [Region] {
+        regions.filter { $0.radius > 0 }
+    }
+
     /// 역지오코딩한 도시 이름(영어)에 든 지역. 없으면 기본 지역이다.
     public func region(inCities cities: [String]) -> Region {
-        regions.first { cities.contains($0.name.en) } ?? defaultRegion
+        locatable.first { cities.contains($0.name.en) } ?? defaultRegion
     }
 
     /// 반지름 원으로 어림한 지역. 위치를 모르거나 어느 원에도 들지 않으면 기본 지역이다.
     public func region(at location: CLLocation?) -> Region {
         guard let location else { return defaultRegion }
-        return regions.first { location.distance(from: CLLocation(latitude: $0.latitude, longitude: $0.longitude)) <= $0.radius } ?? defaultRegion
+        return locatable.first { location.distance(from: CLLocation(latitude: $0.latitude, longitude: $0.longitude)) <= $0.radius } ?? defaultRegion
     }
 }
