@@ -37,5 +37,4 @@ enum Sprites {
     static let bokjumeoni = [".WBWBW.", "Y.YKY.Y", ".YRRRY.", "RRRRRRR", "RRYYYRR", ".RRRRR."]
     static let bokjumeoniColors: [Character: String] = ["B": "pouch-knot", "R": "pouch", "Y": "pouch-gold", "W": "hanbok-collar", "K": "clock-hand"]
     /// 오른쪽 어깨에서 왼쪽 허리로 비스듬히 멘 가죽 화살통. 위로 화살깃 셋이 솟는다.
-    static let quiver = [".....a.a", ".....aaa", "....qqQ.", "....qqQ.", "...qqQ..", "...qqQ..", "..qqQ...", "..qqQ...", ".qqQ....", ".qqQ....", "qqQ....."]
 }

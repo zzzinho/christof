@@ -2,7 +2,7 @@
 
 English | [한국어](README.ko.md)
 
-A macOS widget that shows your weather, the time, and holidays as the view outside a window, in a place you choose: Seoul, Busan, or Henesys, the mushroom village of MapleStory. It is drawn in 3pt pixel dots. The name comes from Christof, the director who stages the fake world in The Truman Show: this is a virtual window.
+A macOS widget that shows your weather, the time, and holidays as the view outside a window, in a place you choose: Seoul or Busan. It is drawn in 3pt pixel dots. The name comes from Christof, the director who stages the fake world in The Truman Show: this is a virtual window.
 
 **Time** · Busan, a clear day in June: before dawn → sunrise → morning → noon → afternoon → sunset → evening → late night
 

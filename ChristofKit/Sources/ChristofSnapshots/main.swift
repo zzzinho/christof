@@ -64,7 +64,6 @@ func sunTime(_ region: Region, _ month: Int, _ day: Int, _ event: KeyPath<SunSta
 
 let seoul = region("KR.seoul")
 let busan = region("KR.busan")
-let henesys = region("KR.henesys")
 // 목록에 없는 지역의 먼 풍경(뒷산과 아파트)도 그려 본다. 시안은 한국어 이름으로 먼 풍경을 고른다.
 let daegu = Region(id: "test.daegu", name: LocalizedName(en: "Daegu", ko: "대구"), countryCode: "KR", latitude: 35.87028, longitude: 128.59111, timeZone: seoul.timeZone)
 let scenarios: [Scenario] = [
@@ -87,16 +86,6 @@ let scenarios: [Scenario] = [
     Scenario("17-jeongwol-daeboreum-night", seoul, localTime(seoul, 3, 3, 21), (.clear, 0, 0.05, 2), occasion: "KR.jeongwolDaeboreum"),
     Scenario("18-new-year-sunrise", busan, sunTime(busan, 1, 1, \.sunrise), (.clear, 0, 0.1, -6), occasion: "KR.newYearsDay"),
     Scenario("19-warm-winter-clear-day", busan, localTime(busan, 1, 15, 14), (.clear, 0, 0.1, 8)),
-    // 헤네시스. 해·달은 부산 좌표, 이벤트는 한국이다. 낮 장면은 시각 시드로 지나가는 몬스터가 갈린다.
-    Scenario("20-henesys-summer-day", henesys, localTime(henesys, 7, 15, 13), (.clear, 0, 0.1, 31)),
-    Scenario("21-henesys-spring-day", henesys, localTime(henesys, 4, 5, 11), (.partlyCloudy, 0, 0.3, 17)),
-    Scenario("22-henesys-autumn-meal", henesys, localTime(henesys, 11, 2, 12), (.clear, 0, 0.15, 16)),
-    Scenario("23-henesys-sunset", henesys, sunTime(henesys, 6, 21, \.sunset), (.partlyCloudy, 0, 0.35, 24), occasion: "sky.sunset"),
-    Scenario("24-henesys-crescent-night", henesys, localTime(henesys, 3, 22, 20), (.clear, 0, 0, 5)),
-    Scenario("25-henesys-rainy-afternoon", henesys, localTime(henesys, 7, 10, 15), (.rain, 0.6, 0.95, 24)),
-    Scenario("26-henesys-snowy-christmas", henesys, localTime(henesys, 12, 25, 10), (.snow, 0.6, 0.9, -2), occasion: "KR.christmas"),
-    Scenario("27-henesys-chuseok-night", henesys, localTime(henesys, 9, 25, 21), (.clear, 0, 0.05, 19), occasion: "KR.chuseok"),
-    Scenario("28-henesys-winter-sleep", henesys, localTime(henesys, 1, 15, 10), (.clear, 0, 0.1, 8)),
 ]
 
 let output = URL(fileURLWithPath: CommandLine.arguments.dropFirst().first ?? "snapshots", isDirectory: true)

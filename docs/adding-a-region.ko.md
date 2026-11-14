@@ -2,9 +2,9 @@
 
 [English](adding-a-region.md) | 한국어
 
-지역은 앱에서 더할 수 없습니다. 시안과 코드를 고친 뒤 앱을 직접 빌드합니다. 지금 지역은 서울, 부산, 헤네시스 셋입니다.
+지역은 앱에서 더할 수 없습니다. 시안과 코드를 고친 뒤 앱을 직접 빌드합니다. 지금 지역은 서울과 부산 둘입니다.
 
-실제 도시마다 창밖 먼 풍경에 랜드마크가 하나 있습니다. 나머지(방 안, 사람, 고양이, 이벤트)는 모든 도시가 같습니다. 헤네시스처럼 지역이 디자인을 통째로 가져올 수도 있습니다(아래 "디자인 추가하기").
+실제 도시마다 창밖 먼 풍경에 랜드마크가 하나 있습니다. 나머지(방 안, 사람, 고양이, 이벤트)는 모든 도시가 같습니다. 게임 마을처럼 지역이 디자인을 통째로 가져올 수도 있습니다(아래 "디자인 추가하기").
 
 ## 1. 먼 풍경 디자인
 
@@ -56,12 +56,12 @@ xcodebuild -project Christof.xcodeproj -scheme Christof -destination 'platform=m
 
 디자인은 창밖 마을, 창틀, 고양이 자리의 동물, 평소 옷을 바꿉니다. 디자인은 지역 하나에 딸려 오고, 따로 고르는 디자인 설정은 없습니다.
 
-1. `design/03-henesys.html` 같은 테마 페이지로 디자인합니다(`design/00-base.html` 의 `THEMES`).
-2. `ChristofKit/Sources/ChristofKit/Rendering/Themes/` 에 `Theme` 값으로 옮깁니다: 마을(`OutsideEffect`), 창틀(`WindowFrame`), 동물(`Pets`), 옷(`Outfit`). `Henesys.swift` 를 보세요.
+1. `design/` 에 테마 페이지로 디자인합니다(`design/00-base.html` 의 `THEMES`).
+2. `ChristofKit/Sources/ChristofKit/Rendering/Themes/` 에 `Theme` 값으로 옮깁니다: 마을(`OutsideEffect`), 창틀(`WindowFrame`), 동물(`Pets`), 옷(`Outfit`). 기본은 `Theme.swift` 의 `Theme.lofi` 입니다. 마을 하나를 통째로 만든 예는 지운 헤네시스(태그 `v0.13.1` 의 `Rendering/Themes/Henesys.swift`)입니다.
 3. 그 테마를 단 지역을 `KoreaRegions.all` 에 더합니다. 실제로 없는 곳은 `radius: 0` 으로 두어 "자동"이 고르지 않게 합니다.
 
    ```swift
-   region("henesys", LocalizedName(en: "Henesys", ko: "헤네시스"), 35.10168, 129.03004, radius: 0, RegionLooks(theme: .henesys)),
+   region("town", LocalizedName(en: "Town", ko: "마을"), 35.10168, 129.03004, radius: 0, RegionLooks(theme: .town)),
    ```
 
    한국의 명절·계절·시간대를 쓰고, 해와 달은 적은 좌표로 계산합니다.

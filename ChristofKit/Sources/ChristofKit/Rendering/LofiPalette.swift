@@ -156,7 +156,7 @@ enum LofiPalette {
         "pajama-dark": 0x71685E,
         "pajama-rim": 0xB0A493,
         "santa-dark": 0x86393E,
-        // 헤네시스 테마
+        // 헤네시스 테마. 앱에서는 뺐고(UX U-016), 시안 design.css 에서 빠질 때 함께 뺀다(시안 비교가 두 팔레트를 견준다)
         "mushroom": 0xD57A36,
         "mushroom-spot": 0xE6BC50,
         "horny": 0x6F90B6,

@@ -2,9 +2,9 @@
 
 English | [한국어](adding-a-region.ko.md)
 
-Regions cannot be added from the app. You change the design and the code, then build the app yourself. There are three regions now: Seoul, Busan, and Henesys.
+Regions cannot be added from the app. You change the design and the code, then build the app yourself. There are two regions now: Seoul and Busan.
 
-Each real city has one landmark in the distance outside the window. Everything else (the room, the person, the cat, and the events) is the same in every city. A region can also bring a whole design of its own, like Henesys (see "Adding a design" below).
+Each real city has one landmark in the distance outside the window. Everything else (the room, the person, the cat, and the events) is the same in every city. A region can also bring a whole design of its own, for example a game town (see "Adding a design" below).
 
 ## 1. Design the far view
 
@@ -56,12 +56,12 @@ xcodebuild -project Christof.xcodeproj -scheme Christof -destination 'platform=m
 
 A design changes the town outside the window, the window frame, the animal in the cat's spot, and the everyday outfit. It comes with its own region, and there is no separate design setting.
 
-1. Design it as a theme page like `design/03-henesys.html` (`THEMES` in `design/00-base.html`).
-2. Port it to a `Theme` value in `ChristofKit/Sources/ChristofKit/Rendering/Themes/`: the town (`OutsideEffect`), the frame (`WindowFrame`), the animal (`Pets`), and the outfit (`Outfit`). See `Henesys.swift`.
+1. Design it as a theme page in `design/` (`THEMES` in `design/00-base.html`).
+2. Port it to a `Theme` value in `ChristofKit/Sources/ChristofKit/Rendering/Themes/`: the town (`OutsideEffect`), the frame (`WindowFrame`), the animal (`Pets`), and the outfit (`Outfit`). `Theme.lofi` in `Theme.swift` is the default one. The removed Henesys theme (`Rendering/Themes/Henesys.swift` at tag `v0.13.1`) is a complete example of a whole town.
 3. Add a region with that theme to `KoreaRegions.all`. A place that does not exist gets `radius: 0`, so Auto never picks it:
 
    ```swift
-   region("henesys", LocalizedName(en: "Henesys", ko: "헤네시스"), 35.10168, 129.03004, radius: 0, RegionLooks(theme: .henesys)),
+   region("town", LocalizedName(en: "Town", ko: "마을"), 35.10168, 129.03004, radius: 0, RegionLooks(theme: .town)),
    ```
 
    It takes Korea's holidays, seasons, and time zone, and the sun and moon of the coordinates you give.

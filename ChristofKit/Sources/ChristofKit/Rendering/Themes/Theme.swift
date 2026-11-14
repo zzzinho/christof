@@ -10,7 +10,6 @@ public struct Theme: Equatable, Sendable {
     let outfit: Outfit
 
     public static let lofi = Theme(id: "lofi", town: KoreanTownEffect(), frame: SashFrame(), pets: .cat, outfit: .pajama)
-    public static let henesys = Theme(id: "henesys", town: HenesysEffect(), frame: CottageFrame(), pets: .mushroom, outfit: .bowman)
 
     public static func == (a: Theme, b: Theme) -> Bool { a.id == b.id }
 }
@@ -54,22 +53,3 @@ struct SashFrame: WindowFrame {
     }
 }
 
-/// 버섯집 나무 창: 위 두 모서리를 둥글게 깎은 창 구멍과 가운데 세로 문살. 아파트 샷시는 한국 아파트로 읽혀 헤네시스에 맞지 않는다.
-struct CottageFrame: WindowFrame {
-    func draw(_ t: inout DotGrid, _ L: RoomLayout) {
-        let (x0, x1, y0, sill) = (L.x0, L.x1, L.y0, L.sill)
-        let r = 7.0, left = x0 + 2, right = x1 - 2, top = y0 + 2
-        let lit = LofiPalette.color("desk-lit"), light = LofiPalette.color("wood-light")
-        for y in y0..<sill {
-            for x in x0..<x1 {
-                let cx = Double(x) + 0.5, cy = Double(y) + 0.5
-                let corner = jsHypot(max(0, Double(left) + r - cx, cx - (Double(right) - r)), max(0, Double(top) + r - cy))
-                if x >= left, x < right, y >= top, corner <= r { continue }
-                t.set(x, y, y == y0 ? light : lit)
-            }
-        }
-        let midX = jsRound(Double(x0 + x1) / 2)
-        t.rect(midX - 1, y0 + 2, 2, sill - y0 - 2, lit)
-        t.rect(midX, y0 + 2, 1, sill - y0 - 2, light)
-    }
-}
